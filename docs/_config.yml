@@ -1,0 +1,14 @@
+title: "TỰ HỌC BAYESIAN STATISTICS"
+description: "bằng Python, Pytorch, Numpyro, Arviz"
+show_downloads: false
+encoding: utf-8
+google_analytics:
+theme: jekyll-theme-cayman
+
+defaults:
+  - 
+    scope: 
+      path: ""
+
+    values:
+      layout: default

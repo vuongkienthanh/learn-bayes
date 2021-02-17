@@ -1,0 +1,62 @@
+---
+---
+
+@import "{{ site.theme }}";
+.btn {
+  color: rgba(241, 70, 17, 0.7);
+  background-color: rgba(241, 70, 17, 0.08);
+  border-color: rgba(241, 70, 17, 0.2);
+
+  &:hover {
+    color: rgba(241, 70, 17, 0.8);
+    background-color: rgba(241, 70, 17, 0.2);
+    border-color: rgba(241, 70, 17, 0.3);
+  }
+}
+
+.page-header {
+  color: black;
+  background-image: radial-gradient(yellow, green);
+}
+
+.endnotes li {
+  list-style-type: none;
+  margin: 1.2rem 0;
+  font-size: 0.8rem;
+}
+
+.imp {
+  margin: 1.2rem 0;
+}
+
+strong {
+  color: blue;
+}
+
+.alert > p:first-child > strong:first-child {
+  color: rgba(60, 19, 43, 1.000);
+}
+
+.alert-dark {
+  font-size: 0.8rem;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fig {
+  margin: 1.2rem 0.8rem;
+}
+
+.circle {
+  display: inline;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+samp {
+  white-space: pre;
+}

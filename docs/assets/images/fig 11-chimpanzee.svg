@@ -1,0 +1,30 @@
+<svg width="750" height="200" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+ <g>
+  <title>background</title>
+  <rect fill="#fff" id="canvas_background" height="202" width="752" y="-1" x="-1"/>
+  <g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_1" height="117" width="423" y="35" x="161.5" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <ellipse ry="60.5" rx="59" id="svg_2" cy="92.5" cx="662.5" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <text style="cursor: move;" stroke="#000" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_3" y="77" x="645.5" stroke-width="0" fill="#000000">+/-</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_4" y="112" x="628.5" fill-opacity="null" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#000000">partner</text>
+  <line stroke-linecap="null" stroke-linejoin="null" id="svg_5" y2="62" x2="560.50132" y1="62" x1="182.5" fill-opacity="null" stroke-opacity="null" stroke-width="10" stroke="#000" fill="none"/>
+  <line stroke-linecap="null" stroke-linejoin="null" id="svg_6" y2="117" x2="566.53238" y1="117" x1="180.5" fill-opacity="null" stroke-opacity="null" stroke-width="10" stroke="#000" fill="none"/>
+  <path id="svg_8" d="m421.00751,56.44714l12.60461,0l3.89539,-11.9749l3.89539,11.9749l12.60461,0l-10.19769,7.4005l3.89539,11.9749l-10.19769,-7.40091l-10.19769,7.40091l3.89484,-11.9749l-10.19714,-7.4005l0,0z" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#0fffff"/>
+  <path id="svg_10" d="m265.00751,55.44714l12.60461,0l3.89539,-11.9749l3.89539,11.9749l12.60461,0l-10.19769,7.4005l3.89539,11.9749l-10.19769,-7.40091l-10.19769,7.40091l3.89484,-11.9749l-10.19714,-7.4005l0,0z" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#0fffff"/>
+  <path id="svg_11" d="m267.00751,111.44714l12.60461,0l3.89539,-11.97488l3.89539,11.97488l12.60461,0l-10.19769,7.40051l3.89539,11.97488l-10.19769,-7.40091l-10.19769,7.40091l3.89484,-11.97488l-10.19714,-7.40051l0,0z" stroke-opacity="null" stroke-width="1.5" stroke="#000" fill="#0fffff"/>
+  <ellipse ry="60.5" rx="59" id="svg_13" cy="95.5" cx="77.5" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <text stroke="#000" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_14" y="100" x="48.5" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">actor</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_15" y="33" x="331.5" fill-opacity="null" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#000000">prosocial option</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_16" y="177" x="330.5" fill-opacity="null" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#000000">non-prosocial option</text>
+  <line stroke-width="3" stroke-linecap="null" stroke-linejoin="null" id="svg_19" y2="117" x2="175.51351" y1="117" x1="138.5" fill-opacity="null" stroke-opacity="null" stroke="#000" fill="none"/>
+  <line stroke-linecap="null" stroke-linejoin="null" id="svg_20" y2="115" x2="155.5" y1="101" x1="170.5" fill-opacity="null" stroke-opacity="null" stroke-width="3" stroke="#000" fill="none"/>
+  <line stroke-width="3" stroke-linecap="null" stroke-linejoin="null" id="svg_21" y2="62" x2="173.51351" y1="62" x1="136.5" fill-opacity="null" stroke-opacity="null" stroke="#000" fill="none"/>
+  <line stroke-linecap="null" stroke-linejoin="null" id="svg_22" y2="60" x2="153.5" y1="46" x1="168.5" fill-opacity="null" stroke-opacity="null" stroke-width="3" stroke="#000" fill="none"/>
+ </g>
+</svg>
