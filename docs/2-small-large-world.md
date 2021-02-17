@@ -70,13 +70,13 @@ Nhiệm vụ của ta là tìm ra phỏng đoán nào là hợp lý nhất, khi 
 
 Ta bắt đầu trồng khu vườn và xem cách dùng thông tin để suy luận những gì trong túi. Giả sử phỏng đoán ban đầu [<img class="circle" src="./assets/images/blue-circle.svg"><img class="circle" src="./assets/images/white-circle.svg"><img class="circle" src="./assets/images/white-circle.svg"><img class="circle" src="./assets/images/white-circle.svg">] là đúng, nghĩa là trong túi có 1 bi xanh và 3 bi trắng. Rút một bi đầu tiên, có 4 khả năng xảy ra, mô phỏng như hình sau:
 
-![](/assets/images/branch-1.png)
+![](/assets/images/garden 2-1.png)
 
 Chú ý rằng với 3 bi trắng nhìn như nhau từ góc nhìn của thông tin - ta chỉ ghi nhận màu sắc của viên bi - chúng là những sự kiện khác nhau. Điều này quan trọng vì có 3 cách lấy <img class="circle" src="./assets/images/white-circle.svg"> hơn là <img class="circle" src="./assets/images/blue-circle.svg">.
 
 Giờ ta nhìn lại khu vườn khi rút thêm 1 viên bi, nó nở rộng thêm 1 tầng:
 
-![](/assets/images/branch-2.png)
+![](/assets/images/garden 2-2.png)
 
 Có 16 khả năng xảy ra trong khu vườn, với 2 lần rút bi. Vào lượt rút thứ 2 từ túi, mỗi nhánh lại phân ra thành 4 khả năng. Tại sao?
 

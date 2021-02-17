@@ -3,45 +3,73 @@ title: "Chapter 6: The Haunted DAG & The Causal Terror"
 description: "Chương 6: DAG bị ám và sự kinh hoàng của nhân quả"
 ---
 
-```python
-import arviz as az
-import matplotlib.pyplot as plt
-import pandas as pd
-from causalgraphicalmodels import CausalGraphicalModel
-
-import jax.numpy as jnp
-from jax import lax, random
-
-import numpyro
-import numpyro.distributions as dist
-import numpyro.optim as optim
-from numpyro.diagnostics import print_summary
-from numpyro.infer import SVI, Trace_ELBO
-from numpyro.infer.autoguide import AutoLaplaceApproximation
-```
-
 - [6.1 Multicolinearity](#1)
 - [6.2 Post-treatment bias](#2)
 - [6.3 Collider bias](#3)
 - [6.4 Đối phó với sai lệch (confounding)](#4)
 
+<details class='imp'><summary>import lib cần thiết</summary>
+{% highlight python %}import arviz as az
+import daft
+import matplotlib.pyplot as plt
+import pandas as pd
+from causalgraphicalmodels import CausalGraphicalModel
+import jax.numpy as jnp
+from jax import lax, random
+import numpyro
+import numpyro.distributions as dist
+import numpyro.optim as optim
+from numpyro.diagnostics import print_summary
+from numpyro.infer import SVI, Trace_ELBO
+from numpyro.infer.autoguide import AutoLaplaceApproximation{% endhighlight %}
 
-Có vẻ như những bài báo khoa học *thời sự* lại là những bài báo kém *tin cậy* nhất. Tại sao sự tương quan âm này được tin tưởng rộng rãi? Không có lý do gì mà những nghiên cứu hay đề tài mà mọi người quan tâm lại cho kết quả kém tin cậy. Có thể nào những chủ đề phổ biến thu hút nhiều nhà nghiên cứu "dỏm", như mật ngọt thu hút ruồi?
+Có vẻ như những bài báo khoa học thời sự lại là những bài báo kém tin cậy nhất. Nó càng có khả năng giết bạn, nếu đúng, thì càng ít khả năng là nó đúng. Đề tài càng chán ngấy, thì kết quả của nó càng chính xác. Tại sao sự tương quan âm này được tin tưởng rộng rãi? Không có lý do gì để những nghiên cứu hay đề tài mà mọi người quan tâm lại cho kết quả kém tin cậy. Có thể nào những chủ đề phổ biến thu hút nhiều nhà nghiên cứu "dỏm", như mật ngọt hút ruồi?
 
-Thật ra điều kiện cần cho tương quan âm này là những người đánh giá báo cáo khoa học (peer reviewer) quan tâm đến cả hai tính chất *thời sự (newsworthiness)* và *tin cậy (trustworthiness)*. Nếu người đánh giá quan tâm đến 2 tính chất trên, thì chính hành động chọn lọc đó làm cho bài báo thời sự nhất kém tin cậy đi. Thực tế, rất khó để tưởng tượng rằng công việc đánh giá bài báo có cách nào tránh được hiện tượng này.
+Thật ra điều kiện cần cho tương quan âm này xuất hiện là những người đánh giá báo cáo khoa học (peer reviewer) quan tâm đến cả hai tính chất thời sự (newsworthiness) và tin cậy (trustworthiness). Nếu người đánh giá quan tâm đến hai tính chất trên, thì chính hành động chọn lọc đó làm cho bài báo thời sự nhất thành kém tin cậy nhất. Thực tế, rất khó để tưởng tượng rằng công việc đánh giá bài báo có cách nào tránh được hiện tượng này. Và, các bạn đọc thân mến, sự thật này sẽ giúp chúng ta hiểu những nguy hiểm đang rình rập của hồi quy đa biến.
 
-![](/assets/images/fig 6-1.png)
+Đây là một mô phỏng đơn giản để minh hoạ cho điểm này. Giả sử có một hội đồng duyệt bài nhận được 200 bài báo nộp lên. Thì giữa những bài đó, không có tương quan nào giữa tính tin cậy (độ chính xác, sự uyên thâm, khả năng thành công) và tính thời sự (giá trị phúc lợi xã hội, mối quan tâm công chúng). Hội đồng đo lường tính thời sự và tính tin cậy là như nhau. Sau đó họ xép hạng những bài nộp bởi tổng điểm của chúng và chọn ra 10% trên để cho quỹ.
 
-Hiện tượng này đã được nhận ra từ lâu. Nó thường được gọi là Berkson's paradox. Nhưng ta có thể dễ nó hơn với tên là *hiện tượng sai sự thật do chọn lọc*. Nếu bạn kỹ hơn, bạn sẽ nó tồn tại ở mọi nơi. Tại sao những nhà hàng ở vị trí tốt lại có thức ăn dở. Một cách tồn tại của nhà hàng với thức ăn không-ngon-lắm là phải ở vị trí tốt. Tương tự, nhà hàng với thức ăn ngon có thể sinh tồn được ở vị trí xấu. Hiện tượng này đã phá vỡ thành phố của chúng ta.
+<a name="f1"></a>![](/assets/images/fig 6-1.svg)
+<details class="fig"><summary>Hình 6.1: Tại sao những bài cáo thời sự lại ít tin cậy nhất. 200 bài báo nộp lên được xếp hàng bằng tổng tính thời sự và tính tương cậy. 10% trên được chọn để cho quỹ. Trong khi không có tương quan trước khi chọn lọc, hai tiêu chuẩn này tương quan âm mạnh sau khi được chọn lọc. Tương quan ở đây là -0.65.</summary>
+{% highlight python %}with numpyro.handlers.seed(rng_seed=1914):
+    N, p = 200, 0.1
+    nw = numpyro.sample("nw", dist.Normal().expand([N]))
+    tw = numpyro.sample("tw", dist.Normal().expand([N]))
+    s = nw + tw
+    q = jnp.quantile(s, 1 - p)
+    selected = jnp.where(s >= q, True, False)
+plt.figure(figsize=(5,4))
+ax=plt.gca(xlabel="tính thời sự", ylabel="tính tin cậy")
+ax.scatter(nw,tw)
+sns.regplot(x=nw[selected], y=tw[selected], ax=ax, color='C1', ci=None)
+ax.annotate('chọn', (2,2))
+ax.annotate('rớt', (0,-2)){% endhighlight %}</details>
 
-Vậy nó liên quan gì đến hồi quy đa biến (multiple regression)? Mọi thứ. Chương trước giới thiệu hồi quy đa biến là một công cụ tuyệt vời để đánh tan mối tương quan giả tạo, cũng như làm rõ tương quan bị ẩn. Điều đó có lẽ củng cố rằng nên thêm tất cả mọi thứ vào mô hình và hãy để nó tự giải quyết.
+Cuối phần này, tôi sẽ đưa code mô phỏng thí nghiệm này. [**HÌNH 6.1**](#f1) thể hiện toàn bộ mẫu các bài báo mô phỏng được nộp lên, và những bài báo được chọn là màu đỏ. Tôi vẽ thêm đường hồi quy tuyến tính đơn giản giữa các bài báo được chọn. Có một tương quan âm, -0.65 trong ví dụ này. Chọn lọc mạnh tạo ra tương quan âm giữa các tiêu chuẩn dùng để chọn lọc. Tại sao? Nếu cách duy nhất để vượt qua ngưỡng này để có nhiều điểm hơn, thì cách thông dụng là đạt điểm cao ở một tiêu chuẩn hơn là cả hai. Cho nên giữa các bài báo được chọn để cho quỹ, thì những bài báo thời sự có thể thực ra có tính tin cậy thấp hơn trung bình (nhỏ hơn 0 trong hình này). Tương tự những bài báo tin cậy cao thì có tính thời sự thấp hơn trung bình.
 
-Nhưng không, mô hình hồi quy đa biến không tự giải quyết được hết. Nó là một thiên thần, nhưng cũng là ác quỷ. Nó sẽ trừng phạt ta nếu ta cho nó một câu hỏi kém. Hiện tượng *sai sự thật do chọn lọc* xảy ra ngay trong hồi quy đa biến, bởi vì việc thêm biến gây ra sự chọn lọc trong mô hình, gây ra **COLLIDER BIAS**. Nó làm cho chúng ta tin rằng, có một tương quan âm giữa tính *thời sự* và độ *tin cậy*, trong khi đó nó là hậu quả của việc đặt điều kiện trên các biến khác. Đây là một sự thật dễ nhầm lẫn và cực kỳ quan trọng khi ta dùng hồi quy một cách có trách nhiệm.
+Hiện tượng này đã được nhận ra từ lâu. Nó đôi khi được gọi là **NGHỊCH LÝ BERKSON (BERKSON'S PARADOX)**. Nhưng sẽ dễ nhớ hơn nếu chúng ta gọi nó là *hiệu ứng chọn lọc-móp méo (selection-distortion effect)*. Một khi bạn quan tâm đến hiệu ứng này, bạn sẽ thấy nó tồn tại ở mọi nơi. Tại sao những nhà hàng ở vị trí tốt lại có thức ăn dở. Một cách tồn tại của nhà hàng với thức ăn không-ngon-lắm là phải ở vị trí tốt. Tương tự, nhà hàng với thức ăn ngon có thể sinh tồn được ở vị trí xấu. Chọn lọc-móp méo đã phá vỡ thành phố của chúng ta.
 
-Trong chương này sẽ giới thiệu:
-1. Hiện tượng đa cộng tuyến (Multicollinearity)
-2. Sai lệch do biến hậu điều trị (Post-treatment bias)
-3. Sai lệch do biến xung dột (Collider bias)
+Vậy nó liên quan gì đến hồi quy đa biến (multiple regression)? Thật không may, mọi thứ. Chương trước giới thiệu hồi quy đa biến là một công cụ tuyệt vời để đánh tan mối tương quan giả tạo, cũng như làm rõ tương quan bị ẩn. Điều đó có lẽ củng cố rằng nên thêm tất cả mọi thứ vào mô hình và hãy để vị thánh hồi quy tự giải quyết.
+
+Nhưng không, mô hình hồi quy đa biến không tự giải quyết được hết. Nó là một thiên thần, nhưng cũng là ác quỷ. Nó nói chuyện với giọng điệu đánh đố và sẽ trừng phạt chúng ta nếu cho nó một câu hỏi kém. Hiệu ứng chọn lọc-móp méo có thể xảy ra ngay trong hồi quy đa biến, bởi vì việc thêm biến dự đoán gây ra sự chọn lọc thống kê ngay trong mô hình, một hiện tượng với tên gọi không giúp ích được gì, **SAI LỆCH ĐỒNG CĂN (COLLIDER BIAS)**. Nó làm cho chúng ta hiểu sai rằng, ví dụ, nhìn chung có một tương quan âm giữa tính thời sự và tính tin cậy, trong khi thực tế nó là hệ quả của việc đặt điều kiện trên các biến nào đó. Đây vừa là một sự thật gây bối rối vừa là một sự thật cực kỳ quan trọng để hiểu để dùng hồi quy một cách có trách nhiệm.
+
+Chương này và tiếp theo đều về những thảm hoạ có thể xảy ra nếu chúng ta đơn thuần thêm biến vào hồi quy, mà không có ý tưởng rõ ràng về mô hình nhân quả. Trong chương này chúng ta sẽ khám phá ba hiểm hoạ khác nhau: đa cộng tuyến (multicollinearity), sai lệch hậu điều trị (post-treatment bias), và sai lệch xung đột (collider bias). Chúng ta sẽ kết thúc bằng kết nối tất cả những ví dụ này lại vào chung một khung quy trình có thể giúp chúng ta biến số nào phải và không được đưa vào mô hình để đạt được suy luận hợp lý. Nhưng khung quy trình này không làm giúp chúng ta bước quan trọng nhất: Nó không đưa ra mô hình hợp lý.
+
+<div class="alert alert-dark">
+<p><strong>Mô phỏng khoa học móp méo.</strong> Mô phỏng như này rất dễ thực hiện bằng code, một khi bạn đã thấy được vài ví dụ. Trong mô phỏng này, chúng ta sẽ rút mẫu ra từ vài tiêu chuẩn Gaussian ngẫu nhiên để có được một số lượng các bài báo nộp lên và sau đó chọn ra những bài có tổng điểm nằm trong 10% trên.</p>
+<b>code 6.1</b>
+{% highlight python %}with numpyro.handlers.seed(rng_seed=1914):
+    N = 200  # num grant proposals
+    p = 0.1  # proportion to select
+    # uncorrelated newsworthiness and trustworthiness
+    nw = numpyro.sample("nw", dist.Normal().expand([N]))
+    tw = numpyro.sample("tw", dist.Normal().expand([N]))
+    # select top 10% of combined scores
+    s = nw + tw  # total score
+    q = jnp.quantile(s, 1 - p)  # top 10% threshold
+    selected = jnp.where(s >= q, True, False)
+jnp.corrcoef(jnp.stack([tw[selected], nw[selected]], 0))[0, 1]{% endhighlight %}
+<p>Tôi chọn ra seed cụ thể này để bạn có thể tái tạo kết quả trong <a href="#f1"><strong>HÌNH 6.1</strong></a>, nhưng nếu bạn chạy lại mô phỏng mà không cần đặt seed, bạn sẽ thấy không có gì đặc biệt trong seed mà tôi đã dùng.</p></div>
 
 ## <center>6.1 Hiện tượng đa cộng tuyến (Multicollinearity)</center><a name="1"></a>
 

@@ -1259,8 +1259,7 @@ Trong trường hợp đơn giản nhất, biến quan tâm chỉ có 2 nhóm, n
 d = pd.read_csv("https://github.com/rmcelreath/rethinking/blob/master/data/Howell1.csv?raw=true", sep=";")
 d.head()
 ```
-
-<samp><table border="1">
+<p><samp><table border="1">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -1307,7 +1306,7 @@ d.head()
       <td>0</td>
     </tr>
   </tbody>
-</table></samp>
+</table></samp></p>
 
 Biến `male` đây là một biến dự đoán mới, còn được gọi là **BIẾN CHỈ ĐIỂM (INDICATOR VARIABLE)**. Biến chỉ điểm - đôi khi được gọi là biến "dummy" - là thiết bị để mã hoá phân nhóm không có thứ tự thành những mô hình định lượng. Ở đây không có khái niệm *nam* nhiều hơn *nữ* 1 giá trị. Mục đích của biến `male` là chỉ điểm người đó trong mẫu có phải *nam* hay không. Nên nó có giá trị 1 khi người đó là *nam*, còn nhóm khác là giá trị 0. Không quan trọng nhóm nào được chỉ điểm là 1. Mô hình không quan tâm điều đó. Nhưng để diễn giải mô hình chính xác cần bạn phải nhớ nhóm đó, cho nên thông thường người ta đặt tên biến theo phân nhóm được gán giá trị 1.
 
@@ -1362,12 +1361,12 @@ Name: sex, Length: 544, dtype: int32</samp>
 
 Bây giờ "0" nghĩa là nữ, "1" nghĩa là nam. Không có thứ tự được đặt ra. Chúng chỉ là các nhãn. Và dạng toán học của mô hình trở thành:
 
-$$ \begin{aligned}
+$$\begin{aligned}
 h_i  &\sim \text{Normal}(\mu_i, \sigma) \\
 \mu_i &= \alpha_{\text{sex}[i]} \\
-\alpha_j &\sim \text{Normal}(178, 20)  \quad \text{for} \; j = 0..1 \\
+\alpha_j &\sim \text{Normal}(178, 20) && \text{for} \; j = 0..1 \\
 \sigma &\sim \text{Uniform}(0, 50)\\
-\end{aligned} $$
+\end{aligned}$$
 
 Chúng ta đã tạo ra một danh sách gồm các tham số $\alpha$, mỗi một cho mỗi giá trị độc nhất trong biến chỉ số. Cho nên trong trường hợp này chúng ta có được hai tham số $\alpha$, tên là $\alpha_0$ và $\alpha_1$. Các con số tương ứng với giá trị trong biến chỉ số `sex`. Tôi biết rằng điều này phức tạp, nhưng nó giải quyết vấn đề về prior của chúng ta. Bây giờ cùng một prior được gán cho mỗi một, tương ứng với quan điểm rằng tất cả các nhóm là như nhau, trước khi thấy data. Không nhóm nào có nhiều tính bất định tiền nghiệm hơn nhóm khác. Và bạn sẽ thấy chút nữa, các tiếp cận này mở rộng dễ dàng cho tình huống có nhiều hơn hai nhóm.
 
@@ -1437,8 +1436,8 @@ Hãy sử dụng mô hình để đo lường năng lượng trung bình của s
 
 $$\begin{aligned}
 K_i &\sim \text{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha_{clade[i]} \quad \text{for} \; j = 0..3 \\
-\alpha_j &\sim \text{Normal}(0, 0.5) \\
+\mu_i &= \alpha_{clade[i]}\\
+\alpha_j &\sim \text{Normal}(0, 0.5) && \text{for} \; j = 0..3\\
 \sigma &\sim \text{Exponential}(1) \\
 \end{aligned} $$
 
