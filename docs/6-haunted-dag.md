@@ -3,10 +3,10 @@ title: "Chapter 6: The Haunted DAG & The Causal Terror"
 description: "Chương 6: DAG bị ám và sự kinh hoàng của nhân quả"
 ---
 
-- [6.1 Multicolinearity](#1)
-- [6.2 Post-treatment bias](#2)
-- [6.3 Collider bias](#3)
-- [6.4 Đối phó với sai lệch (confounding)](#4)
+- [6.1 Hiện tượng đa cộng tuyến](#1)
+- [6.2 Sai lệch hậu điều trị](#2)
+- [6.3 Sai lệch xung đột](#3)
+- [6.4 Đối phó với hiện tượng nhiễu](#4)
 
 <details class='imp'><summary>import lib cần thiết</summary>
 {% highlight python %}import arviz as az
@@ -51,7 +51,7 @@ Hiện tượng này đã được nhận ra từ lâu. Nó đôi khi được g
 
 Vậy nó liên quan gì đến hồi quy đa biến (multiple regression)? Thật không may, mọi thứ. Chương trước giới thiệu hồi quy đa biến là một công cụ tuyệt vời để đánh tan mối tương quan giả tạo, cũng như làm rõ tương quan bị ẩn. Điều đó có lẽ củng cố rằng nên thêm tất cả mọi thứ vào mô hình và hãy để vị thánh hồi quy tự giải quyết.
 
-Nhưng không, mô hình hồi quy đa biến không tự giải quyết được hết. Nó là một thiên thần, nhưng cũng là ác quỷ. Nó nói chuyện với giọng điệu đánh đố và sẽ trừng phạt chúng ta nếu cho nó một câu hỏi kém. Hiệu ứng chọn lọc-móp méo có thể xảy ra ngay trong hồi quy đa biến, bởi vì việc thêm biến dự đoán gây ra sự chọn lọc thống kê ngay trong mô hình, một hiện tượng với tên gọi không giúp ích được gì, **SAI LỆCH ĐỒNG CĂN (COLLIDER BIAS)**. Nó làm cho chúng ta hiểu sai rằng, ví dụ, nhìn chung có một tương quan âm giữa tính thời sự và tính tin cậy, trong khi thực tế nó là hệ quả của việc đặt điều kiện trên các biến nào đó. Đây vừa là một sự thật gây bối rối vừa là một sự thật cực kỳ quan trọng để hiểu để dùng hồi quy một cách có trách nhiệm.
+Nhưng không, mô hình hồi quy đa biến không tự giải quyết được hết. Nó là một thiên thần, nhưng cũng là ác quỷ. Nó nói chuyện với giọng điệu đánh đố và sẽ trừng phạt chúng ta nếu cho nó một câu hỏi kém. Hiệu ứng chọn lọc-móp méo có thể xảy ra ngay trong hồi quy đa biến, bởi vì việc thêm biến dự đoán gây ra sự chọn lọc thống kê ngay trong mô hình, một hiện tượng với tên gọi không giúp ích được gì, **SAI LỆCH XUNG ĐỘT (COLLIDER BIAS)**. Nó làm cho chúng ta hiểu sai rằng, ví dụ, nhìn chung có một tương quan âm giữa tính thời sự và tính tin cậy, trong khi thực tế nó là hệ quả của việc đặt điều kiện trên các biến nào đó. Đây vừa là một sự thật gây bối rối vừa là một sự thật cực kỳ quan trọng để hiểu để dùng hồi quy một cách có trách nhiệm.
 
 Chương này và tiếp theo đều về những thảm hoạ có thể xảy ra nếu chúng ta đơn thuần thêm biến vào hồi quy, mà không có ý tưởng rõ ràng về mô hình nhân quả. Trong chương này chúng ta sẽ khám phá ba hiểm hoạ khác nhau: hiện tượng đa cộng tuyến (multicollinearity), sai lệch hậu điều trị (post-treatment bias), và sai lệch xung đột (collider bias). Chúng ta sẽ kết thúc bằng kết nối tất cả những ví dụ này lại vào chung một khung quy trình có thể giúp chúng ta biến số nào phải và không được đưa vào mô hình để đạt được suy luận hợp lý. Nhưng khung quy trình này không làm giúp chúng ta bước quan trọng nhất: Nó không đưa ra mô hình hợp lý.
 
@@ -75,7 +75,7 @@ jnp.corrcoef(jnp.stack([tw[selected], nw[selected]], 0))[0, 1]{% endhighlight %}
 
 Ai cũng biết là có rất nhiều biến dự đoán tiềm năng để đưa vào một mô hình hồi quy. Trong trường hợp data sữa các loài khỉ, có đến 7 biến có sẵn để dự đoán bất kỳ cột nào được chọn là kết cục. Tại sao không xây dựng một mô hình chứa tất cả 7 biến vào? Có rất nhiều hiểm hoạ trong đó.
 
-Hãy bắt đầu bằng nỗi lo lắng ít nhất của bạn, **HIỆN TƯỢNG ĐA CỘNG TUYẾN (MULTICOLINEARITY)**. Đa cộng tuyến tức là có tồn tại một tương quan rất mạnh giữa hai hoặc nhiều biến. Giá trị tương quan thô không phải là cái đáng nói. Cái đáng nói là mối quan hệ, khi đặt điều kiện trên những biến khác trong mô hình. Hệ quả của đa cộng tuyến là phân phối posterior sẽ như đề nghị rằng không có biến nào liên quan đến kết quả đáng tin cậy cả, mặc dù tất cả các biến trong thực tế đều tương quan rất mạnh với kết cục.
+Hãy bắt đầu bằng nỗi lo lắng ít nhất của bạn, **HIỆN TƯỢNG ĐA CỘNG TUYẾN (MULTICOLLINEARITY)**. Đa cộng tuyến tức là có tồn tại một tương quan rất mạnh giữa hai hoặc nhiều biến. Giá trị tương quan thô không phải là cái đáng nói. Cái đáng nói là mối quan hệ, khi đặt điều kiện trên những biến khác trong mô hình. Hệ quả của đa cộng tuyến là phân phối posterior sẽ như đề nghị rằng không có biến nào liên quan đến kết quả đáng tin cậy cả, mặc dù tất cả các biến trong thực tế đều tương quan rất mạnh với kết cục.
 
 Hiện tượng nhức đầu này xuất phát từ chi tiết cách mô hình hồi quy hoạt động. Thực tế, hiện tượng đa cộng tuyến không có gì sai. Mô hình vẫn cho dự đoán tốt. Bạn chỉ cảm thấy khốn khổ nếu muốn cố gắng hiểu nó. Hi vọng là sau khi bạn hiểu hiện tượng đa cộng tuyến, bạn sẽ nhìn chung hiểu mô hình hồi quy hơn.
 
@@ -145,7 +145,7 @@ Những con số trung bình và độ lệch chuẩn trong posterior trông th�
 az.plot_forest(post, hdi_prob=0.89)
 ```
 
-![](/assets/images/forest 6-1.png)
+![](/assets/images/forest 6-1.svg)
 
 Đáng lý ra, nếu cả 2 chân có cùng chiều dài, thì chiều cao phải có tương quan mạnh với chiều dài chân mới đúng. Tại sao posterior lạ vậy? Ước lượng posterior đúng chưa?
 

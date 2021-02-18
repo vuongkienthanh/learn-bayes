@@ -1546,7 +1546,7 @@ Chương này giới thiệu hồi quy đa biến, một cách để xây dựng
 <p><strong>5H1.</strong> In the divorce example, suppose the DAG is: $M \to A \to D$. What are the implied conditional independencies of the graph? Are the data consistent with it?</p>
 <p><strong>5H2.</strong> Assuming that the DAG for the divorce example is indeed $M \to A \to D$, fit a new model and use it to estimate the counterfactual effect of halving a State’s marriage rate M. Use the counterfactual example from the chapter as a template.</p>
 <p><strong>5H3.</strong> Return to the milk energy model, <code>m5_7</code>. Suppose that the true causal relationship among the variables is:</p>
-<img src="/assets/images/dag 5-6.svg">
+<img src="./assets/images/dag 5-6.svg">
 <p>Now compute the counterfactual effect on K of doubling M. You will need to account for both the direct and indirect paths of causation. Use the counterfactual example from the chapter as a template.</p>
 <p><strong>5H4.</strong> Here is an open practice problem to engage your imagination. In the divorce date, States in the southern United States have many of the highest divorce rates. Add the South indicator variable to the analysis. First, draw one or more DAGs that represent your ideas for how Southern American culture might influence any of the other three variables ($D$, $M$ or $A$). Then list the testable implications of your DAGs, if there are any, and fit one or more models to evaluate the implications. What do you think the influence of “Southerness” is?</p>
 </details>
