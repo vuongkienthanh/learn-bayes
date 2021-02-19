@@ -1627,7 +1627,7 @@ az5_3 = az.from_dict(
     posterior={k: v[None, ...] for k, v in post.items()},
     log_likelihood={"D": logprob[None, ...]},
 )
-az.compare({"m5.1": az5_1, "m5.2": az5_2, "m5.3": az5_3}, ic="waic", scale="deviance")
+az.compare({"m5.1": az5_1, "m5.2": az5_2, "m5.3": az5_3}, ic="loo", scale="deviance")
 ```
 
 <p><samp><table border="1">

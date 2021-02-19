@@ -147,43 +147,53 @@ az.plot_forest(post, hdi_prob=0.89)
 
 ![](/assets/images/forest 6-1.svg)
 
-Đáng lý ra, nếu cả 2 chân có cùng chiều dài, thì chiều cao phải có tương quan mạnh với chiều dài chân mới đúng. Tại sao posterior lạ vậy? Ước lượng posterior đúng chưa?
+Bạn hãy thử mô phỏng thêm vài lần nữa với seed khác. Nếu cả hai chân có chiều dài gần như bằng nhau, và chiều cao phải có tương quan mạnh với chiều dài chân, thì tại sao phân phối posterior kì lạ vậy? Kỹ thuật ước lượng posterior đúng chưa?
 
-Ước lượng đã hoạt động đúng, và nó cho kết quả posterior chính xác với câu hỏi của ta. Vấn đề đây là câu hỏi, nhớ lại rằng hồi quy đa biến trả lời câu hỏi: *Biến đó có giá trị như thế nào, sau khi biết tất cả các biến khác?* Trong trường hợp này, câu hỏi là: *Giá trị của chiều dài chân, sau khi biết chiều dài chân còn lại?*
+Kỹ thuật ước lượng đã hoạt động đúng, và nó cho kết quả posterior chính xác với câu hỏi của ta. Vấn đề đây là câu hỏi, nhớ lại rằng hồi quy đa biến trả lời câu hỏi: *Giá trị của việc biết mỗi biến dự đoán, khi chúng ta đã biết những biến dự đoán khác?* Trong trường hợp này, câu hỏi trở thành: *Giá trị của việc biết chiều dài mỗi chân, sau khi biết chiều dài chân còn lại?*
 
-Trả lời cho câu hỏi lạ lùng này, cũng rất lạ lùng, nhưng hoàn toàn hợp logic. Trả lời đó là posterior ước lượng được, xem xét mọi trường hợp cặp parameter của chiều dài chân và xác suất của chúng.
+Đáp án cho câu hỏi lạ lùng này, cũng rất lạ lùng, nhưng hoàn toàn hợp logic. Trả lời đó là phân phối posterior ước lượng được, xem xét mọi trường hợp khả dĩ của các kết hợp của tham số và gán tính phù hợp tương đối cho mọi kết hợp đó, đặt điều kiện trên mô hình và data. Sẽ có ích hơn nếu nhìn vào phân phối posterior kết hợp của `bl` và `br`:
 
+<b>code 6.5</b>
 ```python
 post = m6_1.sample_posterior(random.PRNGKey(1), p6_1, (1000,))
 az.plot_pair(post, var_names=["br", "bl"], scatter_kwargs={"alpha": 0.1})
-plt.show()
 ```
 
-![](/assets/images/fig 6-3.png)
+<a name="f2"></a>![](/assets/images/fig 6-2.svg)
+<details class="fig"><summary>Hình 6.2: Trái: Phân phối posterior cho quan hệ của mỗi chân với chiều cao, từ mô hình <code>m6_1</code>. Bởi vì cả hai biến đều chứa thông tin như nhau, posterior là một đường hẹp của các giá trị tương quan âm. Phải: phân phối posterior là tổng của hai tham số được tập trung vào quan hệ đúng giữa một trong hai chân với chiều cao.</summary>
+{% highlight python %}fig, axs=plt.subplots(1,2,figsize=(8,4))
+post = m6_1.sample_posterior(random.PRNGKey(1), p6_1, (1000,))
+az.plot_pair(post, var_names=["br", "bl"], scatter_kwargs={"alpha": 0.1}, ax=axs[0])
+sum_blbr = post["bl"] + post["br"]
+az.plot_dist(sum_blbr, bw=0.01,ax=axs[1])
+axs[1].set(xlabel="Tổng bl và br", ylabel="mật độ"){% endhighlight %}</details>
 
-Kết quả ở hình bên trái, chúng có tương quan âm rất lớn, với mọi cặp xác suất nằm ở trên một đường thẳng. Khi `bl` lớn, thì `br` nhỏ. Xảy ra ở đây là bởi vì cả hai chân đều chứa đựng cùng một thông tin, nên khi cho cả hai vào mô hình, sẽ có vô số cặp `bl` và `br` để cho cùng một kết quả.
+Kết quả ở bên trái [**HÌNH 6.2**](#f2). Phân phối posterior cho hai tham số này rất tương quan với nhau, và với mọi giá trị phù hợp của `bl` và `br` nằm trên một khe hẹp. Khi `bl` lớn, thì `br` phải nhỏ. Chuyện xảy ra ở đây là bởi vì cả hai biến số chân đều chứa đựng cùng một thông tin, nếu bạn ép buộc cho hai biến vào chung mô hình, thì sẽ có vô số cặp `bl` và `br` để tạo ra cùng một kết quả.
 
 Một cách khác về nhìn hiện tương này là bạn đã dựng mô hình như sau:
 
-$$ \begin{matrix}
-y_i &\propto &\text{Normal}(\mu_i, \sigma)\\
-\mu_i &=& \alpha + \beta_1 x_i = \beta_2 x_i\\
-\end{matrix}$$
+$$\begin{aligned}
+y_i &\sim \text{Normal}(\mu_i, \sigma)\\
+\mu_i &= \alpha + \beta_1 x_i + \beta_2 x_i\\
+\end{aligned}$$
 
-Ở đây, biến $x$ được dùng 2 lần, là ví dụ hoàn hảo về sử dụng chiều dài cả 2 chân. Dưới góc nhìn của golem, mô hình của $\mu_i$ sẽ là:
+Biến $y$ là kết cục, như chiều cao trong ví dụ, và $x$ là một biến dự đoán, giống như chiều dài chân trong ví dụ. Ở đây, biến $x$ được dùng 2 lần, là một ví dụ hoàn hảo về rắc rối khi sử dụng chiều dài cả hai chân. Dưới góc nhìn của golem, mô hình của $\mu_i$ sẽ là:
 
 $$ \mu_i = \alpha + (\beta_1 + \beta_2)x_i $$
 
-Biến $x$ là nhân tử chung của biểu thức, tham số $\beta_1$ và $\beta_2$ không thể bị tách rời, bởi vì chúng ảnh hưởng cùng lúc vào trung bình $\mu$. Thứ ảnh hưởng nó là tổng của tham số, $\beta_1 + \beta_2$. Cho nên phân phối posterior cho kết quả một khoảng rất rộng của $\beta_1$ và $\beta_2$ mà tổng của chúng thể hiện tương quan giữa $x$ và $y$. Nó được thể hiện hình trên bên phải, và code như sau:
+Tôi đã cho biến $x$ là nhân tử chung của biểu thức, tham số $\beta_1$ và $\beta_2$ không thể bị tách rời, bởi vì chúng không bao giờ tách rời và ảnh hưởng cùng lúc vào trung bình $\mu$. Thứ ảnh hưởng nó là tổng của tham số, $\beta_1 + \beta_2$. Cho nên phân phối posterior cho kết quả một khoảng rất rộng của các kết hợp $\beta_1$ và $\beta_2$ mà tổng của chúng thể hiện tương quan thực sự giữa $x$ và $y$.
 
+Và phân phối posterior của ví dụ mô phỏng này là thực hiện điều đó chính xác: Nó đã tạo ta một ước lượng tốt cho tổng của `bl` và `br`. Bây giờ đây là cách để bạn tính được phân phối posterior của tổng đó, Nó được thể hiện hình trên bên phải, và vẽ nó lên:
+
+<b>code 6.6</b>
 ```python
 sum_blbr = post["bl"] + post["br"]
-az.plot_kde(sum_blbr, label="sum of bl and br")
-plt.show()
+az.plot_kde(sum_blbr, label="Tổng bl và br")
 ```
 
-Trung bình của tổng ấy nằm ở giá trị gần bằng 2, và độ lệch chuẩn cũng nhỏ hơn nhiều so với từng thành phần riêng biệt. Nếu bạn hồi quy chỉ với một biến chiều cao chân, bạn cũng sẽ có posterior tương tự.
+Và kết quả là biểu đồ mật độ được thể hiện ở bên phải của [**HINH 6.2**](#f3). Trung bình của tổng ấy nằm ở khu hàng xóm bên phải, giá trị lớn hơn 2 một chút, và độ lệch chuẩn cũng nhỏ hơn nhiều so với từng thành phần riêng biệt của tổng, `bl` và `br`. Nếu bạn hồi quy chỉ với một biến chiều dài chân, bạn cũng sẽ có posterior tương tự.
 
+<b>code 6.7</b>
 ```python
 def model(leg_left, height):
     a = numpyro.sample("a", dist.Normal(10, 100))
@@ -191,8 +201,6 @@ def model(leg_left, height):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + bl * leg_left
     numpyro.sample("height", dist.Normal(mu, sigma), obs=height)
-
-
 m6_2 = AutoLaplaceApproximation(model)
 svi = SVI(
     model,
@@ -202,33 +210,41 @@ svi = SVI(
     leg_left=d.leg_left.values,
     height=d.height.values,
 )
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_2 = svi.get_params(state)
+p6_2, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_2.sample_posterior(random.PRNGKey(1), p6_2, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>
+       mean   std  median  5.5%  94.5%   n_eff  r_hat
+    a  0.83  0.35    0.84  0.25   1.35  931.50   1.00
+   bl  2.02  0.08    2.02  1.91   2.15  940.42   1.00
+sigma  0.67  0.05    0.67  0.60   0.75  949.09   1.00</samp>
 
-|       | mean |  std | median | 5.5% | 94.5% |  n_eff | r_hat |
-|     a | 0.83 | 0.35 |   0.84 | 0.25 |  1.35 | 931.50 |  1.00 |
-|    bl | 2.02 | 0.08 |   2.02 | 1.91 |  2.15 | 940.42 |  1.00 |
-| sigma | 0.67 | 0.05 |   0.67 | 0.60 |  0.75 | 949.10 |  1.00 |
+Con số 2.02 đó là gần giống như giá trị trung bình của `sum_blbr`.
 
-Bài học ở đây là, khi hai biến dự đoán tương quan rất mạnh với nhau, việc thêm cả hai vào mô hình sẽ gây ra sự sai lệch trong diễn giải. Phân phối posterior không sai, nhưng nó không thể trả lời câu hỏi của bạn. Và nếu bạn quan tâm đến độ chính xác của dự báo, mô hình hai chân vẫn hoạt động tốt. Nó chỉ không trả lời được là chân nào quan trọng hơn.
+Bài học ở đây là: khi hai biến dự đoán tương quan rất mạnh với nhau (khi đặt điều kiện trên những biến khác trong mô hình), việc thêm cả hai vào mô hình sẽ dẫn đến sự bối rối. Phân phối posterior không sai, trong những trường hợp này. Nó nói cho bạn biết rằng câu hỏi cũng bạn không thể được trả lời bằng những data này. Và nó là một điều tốt cho mô hình để nói rằng, nó không thể trả lời câu hỏi của bạn. Và nếu bạn quan tâm đến dự đoán, bạn sẽ thấy rằng mô hình chân vẫn cho dự đoán chính xác. Nó chỉ không trả lời được là chân nào quan trọng hơn.
 
-Ví dụ chân này đơn giản và dễ hiểu, nhưng nó đơn thuần là thống kê, ta vẫn chưa đặt câu hỏi nhân quả nào ở đây, ta hãy xem ví dụ thú vị hơn sau đây.
+Ví dụ chân này đơn giản và dễ hiểu. Nhưng nó đơn thuần là thống kê. Chúng ta vẫn chưa đặt câu hỏi nhân quả nghiêm túc nào ở đây. Hãy thử một ví dụ nhân quả thú vị hơn sau đây.
 
-### 6.1.2 Mô hình sữa đa cộng tuyến
+### 6.1.2 Sữa đa cộng tuyến
 
+Trong ví dụ chân, nó rất dễ để thấy rằng đưa cả hai chân vào mô hình là ngu ngốc. Nhưng vấn đề xuất hiện trong data thực là bạn không thể lường trước được sự xung đột giữa các biến dự đoán có tương quan cao. Và do đó chúng ta có thể hiểu sai phân phối posterior để nói rằng không biến nào là quan trọng. Trong phần này, hãy nhìn một ví dụ về vấn đề này với data thực.
+
+Hãy quay lại data sữa các loài khỉ ở chương trước:
+
+<b>code 6.8</b>
 ```python
-d = pd.read_csv("../data/milk.csv", sep=";")
+d = pd.read_csv("https://github.com/rmcelreath/rethinking/blob/master/data/milk.csv?raw=true", sep=";")
 d["K"] = d["kcal.per.g"].pipe(lambda x: (x - x.mean()) / x.std())
 d["F"] = d["perc.fat"].pipe(lambda x: (x - x.mean()) / x.std())
 d["L"] = d["perc.lactose"].pipe(lambda x: (x - x.mean()) / x.std())
 ```
 
-Trong ví dụ này, ta quan tâm đến hai biến `perc.fat` (tỉ lệ chất béo) và `perc.lactose` (tỉ lệ lactose), để dựng mô hình cho `kcal.per.g` (tổng năng lượng). Đây là một trường hợp đa cộng tuyến trong tự nhiên.
+Trong ví dụ này, chúng ta quan tâm đến hai biến `perc.fat` (phần trăm chất béo) và `perc.lactose` (phần trăm lactose). Chúng ta sẽ dùng chúng để dựng mô hình cho `kcal.per.g` (tổng năng lượng). Đoạn code trên đã chuẩn hoá ba biến này. Bạn sẽ dùng ba biến này để khám phá một trường hợp tự nhiên về đa cộng tuyến. Chú ý rằng không có giá trị mất `NaN` trong data, cho nên không cần phải trích xuất những trường hợp đầy đủ. Nhưng bạn có thể an tâm với `SVI`, bởi vì không giống như những phần mềm tự động, nó sẽ không im lặng với những trường hợp bị mất dữ liệu.
 
+Bắt đầu bằng mô hình `kcal.per.g` như là một hàm số của `perc.fat` và `perc.lactose`, nhưng ở hồi quy hai biến. Nhìn lại Chương 5, để thảo luận về những prior này.
+
+<b>code 6.9</b>
 ```python
 # kcal.per.g regressed on perc.fat
 def model(F, K):
@@ -237,14 +253,9 @@ def model(F, K):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + bF * F
     numpyro.sample("K", dist.Normal(mu, sigma), obs=K)
-
-
 m6_3 = AutoLaplaceApproximation(model)
 svi = SVI(model, m6_3, optim.Adam(1), Trace_ELBO(), F=d.F.values, K=d.K.values)
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_3 = svi.get_params(state)
-
+p6_3, losses = svi.run(random.PRNGKey(0), 1000)
 # kcal.per.g regressed on perc.lactose
 def model(L, K):
     a = numpyro.sample("a", dist.Normal(0, 0.2))
@@ -252,32 +263,26 @@ def model(L, K):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + bL * L
     numpyro.sample("K", dist.Normal(mu, sigma), obs=K)
-
-
 m6_4 = AutoLaplaceApproximation(model)
 svi = SVI(model, m6_4, optim.Adam(1), Trace_ELBO(), L=d.L.values, K=d.K.values)
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_4 = svi.get_params(state)
-
+p6_4, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_3.sample_posterior(random.PRNGKey(1), p6_3, (1000,))
 print_summary(post, 0.89, False)
 post = m6_4.sample_posterior(random.PRNGKey(1), p6_4, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+    a   0.01  0.08    0.01  -0.13   0.12   931.50   1.00
+   bF   0.86  0.09    0.86   0.73   1.01  1111.41   1.00
+sigma   0.46  0.06    0.46   0.37   0.57   940.36   1.00
+        mean   std  median   5.5%  94.5%    n_eff  r_hat
+    a   0.01  0.07    0.01  -0.10   0.11   931.50   1.00
+   bL  -0.90  0.07   -0.90  -1.01  -0.78  1111.89   1.00
+sigma   0.39  0.05    0.39   0.31   0.48   957.39   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|     a |  0.01 | 0.08 |   0.01 | -0.13 |  0.12 |  931.50 |  1.00 |
-|    bF |  0.86 | 0.09 |   0.86 |  0.73 |  1.01 | 1111.39 |  1.00 |
-| sigma |  0.46 | 0.06 |   0.46 |  0.37 |  0.57 |  940.36 |  1.00 |
+Phân phối posterior của `bF` và `bL` chính là hình ảnh gương soi của nhau. Posterior trung bình của `bF` là dương trong khi trung bình của `bL` là âm. Cả hai đều có phân phối hẹp và nằm hoàn toàn ở hai bên của zero. Giả sử cả hai biến dự đoán đều có tương quan mạnh với kết cục, chúng ta đã có thể kết luận rằng cả hai biến đều là biến dự đoán đáng tin cậy cho tổng năng lượng sữa, ở các loài. Nhiều chất béo hơn, thì nhiều kilocalory hơn trong sữa. Lactose nhiều hơn, thì ít kilocalory trong sữa. Nhưng hãy xem chuyện gì sẽ xảy ra khi cho cả hai biến dự đoán vào chung mô hình hồi quy:
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|     a | -0.09 | 0.07 |  -0.09 | -0.21 |  0.02 |  931.50 |  1.00 |
-|    bL | -0.90 | 0.08 |  -0.90 | -1.03 | -0.78 | 1086.72 |  1.00 |
-| sigma |  0.41 | 0.06 |   0.40 |  0.32 |  0.49 |  953.70 |  1.00 |
-
-Posterior của `bF` và `bL` chính là gương soi của nhau. Trung bình của `bF` là dương trong khi trung bình của `bL` là âm, cả hai đều có phân phối hẹp và nằm ở hai bên của zero. Cả hai biến đều có tương quan mạnh với biến outcome, nhưng hãy xem chuyện gì xảy ra khi cho cả hai vào chung mô hình:
-
+<b>code 6.10</b>
 ```python
 def model(F, L, K):
     a = numpyro.sample("a", dist.Normal(0, 0.2))
@@ -286,55 +291,54 @@ def model(F, L, K):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + bF * F + bL * L
     numpyro.sample("K", dist.Normal(mu, sigma), obs=K)
-
-
 m6_5 = AutoLaplaceApproximation(model)
 svi = SVI(model, m6_5, optim.Adam(1), Trace_ELBO(), F=d.F.values, L=d.L.values, K=d.K.values)
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_5 = svi.get_params(state)
+p6_5, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_5.sample_posterior(random.PRNGKey(1), p6_5, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+    a  -0.02  0.07   -0.03  -0.13   0.07  1049.96   1.00
+   bF   0.25  0.19    0.25  -0.05   0.56   823.80   1.00
+   bL  -0.67  0.19   -0.67  -0.99  -0.37   875.48   1.00
+sigma   0.38  0.05    0.38   0.30   0.46   982.83   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|     a |  0.04 | 0.07 |   0.03 | -0.07 |  0.13 | 1049.96 |  1.00 |
-|    bF |  0.25 | 0.19 |   0.25 | -0.05 |  0.56 |  820.06 |  1.00 |
-|    bL | -0.67 | 0.19 |  -0.67 | -0.98 | -0.36 |  869.27 |  1.00 |
-| sigma |  0.39 | 0.05 |   0.39 |  0.31 |  0.46 |  931.90 |  1.00 |
+Bây giờ trung bình posterior của cả hai `bF` và `bL` trở nên gần zero hơn. Và độ lệch chuẩn của hai tham số thì rộng gấp hai lần so với mô hình hai biến (`m6_3` và `m6_4`).
 
-Bây giờ hệ số `bF` và `bL` trở nên gần zero hơn, và độ lệch chuẩn rộng hơn so với mô hình đơn biến. Hiện tượng này cũng giống như ví dụ chiều dài chân, ở đây, `perc.fat` và `perc.lactose` đều chứa cùng một thông tin, chúng có thể thay thế lẫn nhau. Cho nên khi có cả hai biến vào mô hình, phân phối posterior cho một khoảng rất lớn các cặp `perc.fat` và `perc.lactose` mà có tính phù hợp như nhau. Trong trường hợp này, `perc.fat` và `perc.lactose` thực chất là cùng một trục biến thiên, có thể dùng pairs plot để nhận ra.
+Đây là một hiện tượng thống kê giống như ví dụ chiều dài chân. Những gì xảy ra ở đây là biến `perc.fat` và `perc.lactose` đều chứa cùng một thông tin. Chúng hầu là thay thế của nhau. Kết quả là, khi bạn cho cả hai biến vào mô hình, phân phối posterior sẽ mô tả một khe rất dài các kết hợp `bF` và `bL` mà có tính phù hợp như nhau. Trong trường hợp chất béo và lactose, hai biến này tạo ra cùng một trục biến thiên. Các đơn giản nhất để nhận ra là dùng biểu đồ bắt cặp.
 
+<b>code 6.11</b>
 ```python
 az.plot_pair(d[["kcal.per.g", "perc.fat", "perc.lactose"]].to_dict("list"))
 ```
 
-![](/assets/images/fig 6-4.png)
+<a name="f3"></a>![](/assets/images/fig 6-3.svg)
+<details class="fig"><summary>Hình 6.3: Biểu đồ bắt cặp của các biến số tổng năng lượng, phần trăm chất béo, và phần trăm lactose từ data sữa các loài khỉ. Phần trăm chất béo và phần trăm lactose có tương quan âm mạnh với nhau, cung cấp hầu như cùng một thông tin.</summary>
+{% highlight python %}az.plot_pair(d[["kcal.per.g", "perc.fat", "perc.lactose"]].to_dict("list"), figsize=(5,5)){% endhighlight %}</details>
 
-Trong giới khoa học, bạn có thể từng gặp nhiều cách tránh hiện tượng đa cộng tuyến. Một ít trong số đó là suy luận nhân quả. Đa số là xem xét tương quan từng cặp trước khi fit mô hình, để xác định và loại bỏ những biến nào có tương quan mạnh. Phương pháp này là sai. Bản thân tương quan từng cặp không phải vấn đề, vấn đề là tương quan phải có điều kiện. Và sau cùng, cách đúng nhất là dựa vào quan hệ nhân quả của hiện tượng đa cộng tuyến. Mối quan hệ sẵn có trong data là không đủ để quyết định bước tiếp theo.
+Biểu đồ này được thể hiện trong [**HÌNH 6.3**](#f3). Tên các biến được dán nhãn ở các trục, tạo thành các nhãn của biểu đồ phân tán. Chú ý rằng phần trăm chất béo tương quan dương với kết cục, trong khi phần trăm lactose tương quan âm với nó. Bây giờ nhìn vào biểu đồ phân tán bên phải. Biểu đồ là phân tán giữa thành phần chất béo (trục hoành) và thành phần lactose (trục tung). Chú ý rằng các điểm được xếp hàng hầu như trên một đường thẳng. Hai biến này là tương quan âm với nhau, và mạnh đến mức một trong chúng là dư thừa. Một trong hai là hữu ích khi dự đoán `kcal.per.g`, nhưng không biến nào là có ích *một khi bạn đã biết biến còn lại*.
 
-Những gì xảy ra trong data `milk` có thể là có sự đánh đổi giữa các thành phần trong sữa mà cơ thể phải tự điều chỉnh. Nếu người mẹ cho bú thường xuyên, sữa có thể chứa nhiều nước và ít năng lượng, nồng độ lactose cao. Nếu người mẹ cho bú ít hơn, sữa phải giàu năng lượng, tức là nhiều chất béo. Mô hình nhân quả như sau:
+Trong giới khoa học, bạn có thể đã từng gặp nhiều phương pháp khác nhau để tránh hiện tượng đa cộng tuyến. Một ít trong số đó là dùng suy luận nhân quả. Vài lĩnh vực thì dạy học sinh khảo sát tương quan từng cặp trước khi fit mô hình, để xác định và loại bỏ những biến dự đoán có tương quan mạnh. Phương pháp này là sai. Bản thân tương quan từng cặp không phải là vấn đề. Vấn đề là mối liên quan có điều kiện - không phải tương quan. Và mặc dù thế, cách đúng nhất là dựa vào cái gì gây ra hiện tượng đa cộng tuyến. Mối quan hệ sẵn có trong data là không đủ để quyết định bước tiếp theo.
 
-![](/assets/images/fig 6-5.png)
+Những gì xảy ra trong ví dụ sữa có thể là có sự đánh đổi chính yếu giữa các thành phần trong sữa mà cơ thể giống cái phải tuân theo. Nếu người mẹ cho bú thường xuyên, sữa có thể chứa nhiều nước và ít năng lượng. Sữa như vậy có nồng độ đường (lactose) cao. Nếu thay vào đó người mẹ cho bú ít hơn, bằng những cữ nhỏ, thì sữa phải giàu năng lượng. Sữa như vậy có nhiều chất béo. Điều đó suy ra mô hình nhân quả như sau:
 
-Sự đánh đổi xảy ra dựa trên độ đặc của sữa, $D$. Ta chưa quan sát được biến này, nên được khoanh tròn. Sau đó, $F$ và $L$ được suy ra. Cuối cùng, $F$ và $L$ quyết định tỉ lệ năng lượng $K$. Nếu ta quan sát được $D$, hoặc từ một mô hình sinh học nào đó dự đoán được giá trị đó, thì tốt hơn là dùng hồi quy đơn thuần.
+![](/assets/images/dag 6-1.svg)
 
-Hiện tượng đa cộng tuyến là một thành viên của vấn đề liên quan với việc fit mô hình, còn gọi là **KHÔNG CÓ KHẢ NĂNG NHẬN DIỆN (NON-IDENTIFIABILITY)**. Khi một parameter không có khả năng nhận diện được, có nghĩa là cấu trúc của data và mô hình không có khả năng ước lượng parameter đó. Thông thường, vấn đề này xảy ra do lỗi thiết kế mô hình sai, nhưng rất nhiều mô hình quan trọng vẫn chứa parameter không hoặc khó nhận diện được, cho dù thiết kế đúng.
+Trung tâm của sự đánh đổi này quyết định độ đặc cần thiết của sữa, $D$. Chúng ta chưa quan sát được biến này, nên được đánh dấu thành một điểm. Sau đó chất béo $F$ và lactose $L$ được suy ra. Cuối cùng, tỉ lệ của $F$ và $L$ quyết định kilocalory, $K$. Nếu chúng ta có thể đo lường được $D$, hoặc có một mô hình tiến hoá hay kinh tế nào đó dự đoán được giá trị đó dựa trên những khía cạnh khác của loài, thì điều đó tốt hơn là nghịch các mô hình hồi quy.
 
-Nói chung, không phải lúc nào data cũng có đầy đủ thông tin về parameter quan tâm. Nếu nó thực sự đúng, suy luận bayes sẽ cho posterior gần giống với prior. So sánh prior với posterior sẽ là một bước hợp logic để nhìn thấy mô hình đã trích xuất bao nhiêu thông tin của data về parameter. Nó có nghĩa là bạn đã đặt câu hỏi đúng, và từ đó bạn sẽ ra câu hỏi tốt hơn.
+Hiện tượng đa cộng tuyến là một thành viên của những vấn đề liên quan với việc fit mô hình, những vấn đề đó còn gọi là **KHÔNG CÓ KHẢ NĂNG NHẬN DIỆN (NON-IDENTIFIABILITY)**. Khi một tham số không có khả năng nhận diện được, có nghĩa là cấu trúc của data và mô hình làm cho không có khả năng ước lượng được tham số đó. Thông thường, vấn đề này xảy ra do lỗi thiết kế mô hình sai, nhưng rất nhiều mô hình quan trọng vẫn chứa tham số không hoặc khó nhận diện được, cho dù thiết kế đúng hoàn toàn. Tự nhiên không nợ chúng ta những suy luận đơn giản, ngay khi mô hình là đúng.
 
----
+Nói chung, không đảm bảo lúc nào data cũng có đầy đủ thông tin về tham số quan tâm. Nếu nó thực sự đúng, suy luận bayes sẽ cho phân phối posterior gần giống với prior. So sánh prior với posterior có thể là một bước đi hợp logic để nhìn thấy mô hình đã trích xuất được bao nhiêu thông tin từ data về tham số. Khi posterior và prior giống nhau, không có nghĩa là phép tính đã sai - bạn vẫn có được đáp án đúng cho câu hỏi của bạn. Nhưng nó có thể hướng dẫn bạn đặt câu hỏi tốt hơn.
 
-**Mô phỏng dữ liệu đa cộng tuyến**: Để xem posterior sẽ sai lệch như thế nào khi tương quan giữa 2 biến dự đoán tăng lên, ta có thể mô phỏng. Đoạn code này sẽ tạo một biến tương quan với `perc.fat`, mức độ từ 0 đến 1. Sau đó cho vào mô hình và cho kết quả các độ lệch chuẩn của slope của `perc.fat`. 
+<div class="alert alert-info">
+<p><strong>Đảm bảo sự nhận diện; hiểu là tuỳ bạn.</strong> Về mặt kỹ thuật, <i>sự nhận diện</i> không phải là vấn đề của mô hình Bayes. Lý do là chỉ cần phân phối posterior là đúng - có tích phân là 1 - thì tất cả những tham số là nhận diện được. Nhưng điều này không có nghĩa là bạn sẽ hiểu được phân phối posterior. Cho nên tốt hơn nên nói là tham số <i>nhận diện yếu</i> trong bối cảnh Bayes. Nhưng sự khác nhau này chỉ mang tính kỹ thuật. Sự thật là ngay cả với DAG nói một hiệu ứng nhân quả là nhận diện được, nó có thể không nhận diện bằng thống kê. Chúng ta phải cố gắng hết sức trong thống kê, cũng như khi chúng ta thiết kê mô hình.</p></div>
 
-```python
-milk = pd.read_csv("../data/milk.csv", sep=";")
-d = milk
-
-def sim_coll(i, r=0.9):
+<div class="alert alert-dark">
+<p><strong>Mô phỏng dữ liệu đa cộng tuyến.</strong> Để xem posterior sai lệch như thế nào khi tương quan giữa hai biến dự đoán tăng lên, hãy dùng mô phỏng. Đoạn code này cho một hàm số mà tạo ra các biến dự đoán tương quan với nhau, fit mô hình, và trả về độ lệch chuẩn của phân phối posterior của slope liên quan <code>perc.fat</code> với <code>kcal.per.g</code>. Sau đó đoạn code này gọi hàm này và lặp lại nhiều lần, với mức độ tương quan khác nhau trong đầu vào, và thu thập kết quả.</p>
+<b>code 6.12</b>
+{% highlight python %}def sim_coll(i, r=0.9):
     sd = jnp.sqrt((1 - r ** 2) * jnp.var(d["perc.fat"].values))
     x = dist.Normal(r * d["perc.fat"].values, sd).sample(random.PRNGKey(3 * i))
-
     def model(perc_fat, kcal_per_g):
         intercept = numpyro.sample("intercept", dist.Normal(0, 10))
         b_perc_flat = numpyro.sample("b_perc.fat", dist.Normal(0, 10))
@@ -342,7 +346,6 @@ def sim_coll(i, r=0.9):
         sigma = numpyro.sample("sigma", dist.HalfCauchy(2))
         mu = intercept + b_perc_flat * perc_fat + b_x * x
         numpyro.sample("kcal.per.g", dist.Normal(mu, sigma), obs=kcal_per_g)
-
     m = AutoLaplaceApproximation(model)
     svi = SVI(
         model,
@@ -352,26 +355,20 @@ def sim_coll(i, r=0.9):
         perc_fat=d["perc.fat"].values,
         kcal_per_g=d["kcal.per.g"].values,
     )
-    init_state = svi.init(random.PRNGKey(3 * i + 1))
-    state = lax.fori_loop(0, 20000, lambda i, x: svi.update(x)[0], init_state)
-    params = svi.get_params(state)
+    params, losses = svi.run(random.PRNGKey(3 * i + 1), 20000, progress_bar=False)
     samples = m.sample_posterior(random.PRNGKey(3 * i + 2), params, (1000,))
     vcov = jnp.cov(jnp.stack(list(samples.values()), axis=0))
     stddev = jnp.sqrt(jnp.diag(vcov))  # stddev of parameter
     return dict(zip(samples.keys(), stddev))["b_perc.fat"]
-
 def rep_sim_coll(r=0.9, n=100):
     stddev = lax.map(lambda i: sim_coll(i, r=r), jnp.arange(n))
     return jnp.nanmean(stddev)
-
 r_seq = jnp.arange(start=0, stop=1, step=0.01)
 stddev = lax.map(lambda z: rep_sim_coll(r=z, n=100), r_seq)
 plt.plot(r_seq, stddev)
-plt.xlabel("correlation")
-plt.show()
-```
-
----
+plt.xlabel("correlation"){% endhighlight %}
+<p>Nên với mỗi hệ số tương quan trong <code>r_seq</code>, code này tạo ra 100 hồi quy và trả về độ lệch chuẩn trung bình từ nó. Code này dùng prior phẳng, tức là prior kém. Cho nên nó phóng đại hiệu ứng của biến cộng tuyến. Khi bạn sử dụng prior chứa thông tin, thì sự khuếch đại của độ lệch chuẩn có thể chậm lại.</p>
+</div>
 
 ## <center>6.2 Sai lệch do biến hậu điều trị (Post-treatment bias)</center><a name="2"></a>
 
