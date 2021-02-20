@@ -576,7 +576,7 @@ Có 6 quan hệ độc lập ở đây. Ta tập trung vào mối quan hệ th�
 
 ![](/assets/images/dag 6-3.svg)
 
-Trong sơ đồ này, biến điều trị $T$ ảnh hưởng đến biến nấm $F$, nhưng nấm không ảnh hưởng tăng trưởng cây. Có thể loài cây này không hề bị ảnh hưởng có loại nấm này. Biến mới $M$ là độ ẩm (moisture). Nó ảnh hưởng cả hai $H_1$ và $F$. $M$ là dấu chấm chỉ điểm cho việc nó không được quan sát. Nguyên nhân chung cho $H_1$ và $F$ chưa được quan sát nào vẫn được - dĩ nhiên không nhất thiết là độ ẩm. Hồi quy $H_1$ trên $T$ sẽ cho thấy không có quan hệ giữa điều trị và tăng trưởng. Nhưng khi cho $F$ vào mô hình, lập tức mối quan hệ này xuất hiện. Hãy thử nó. Tôi sẽ chỉ tuỳ biến mô phỏng tăng trưởng cây để cho nấm không còn ảnh hưởng lên tăng trưởng, nhưng độ ẩm $M$ ảnh hưởng cả hai $H_1$ và $F$:
+Trong sơ đồ này, biến điều trị $T$ ảnh hưởng đến biến nấm $F$, nhưng nấm không ảnh hưởng tăng trưởng cây. Có thể loài cây này không hề bị ảnh hưởng có loại nấm này. Biến mới $M$ là độ ẩm (moisture). Nó ảnh hưởng cả hai $H_1$ và $F$. $M$ là dấu chấm chỉ điểm cho việc nó không được quan sát. Nguồn căn nguyên chung chưa được quan sát cho $H_1$ và $F$ nào vẫn được - dĩ nhiên không nhất thiết là độ ẩm. Hồi quy $H_1$ trên $T$ sẽ cho thấy không có quan hệ giữa điều trị và tăng trưởng. Nhưng khi cho $F$ vào mô hình, lập tức mối quan hệ này xuất hiện. Hãy thử nó. Tôi sẽ chỉ tuỳ biến mô phỏng tăng trưởng cây để cho nấm không còn ảnh hưởng lên tăng trưởng, nhưng độ ẩm $M$ ảnh hưởng cả hai $H_1$ và $F$:
 
 <b>code 6.20</b>
 ```python
@@ -607,24 +607,31 @@ Hãy xem ví dụ DAG dưới đây. Mô hình này có tính tin cậy ($T$) v�
 
 ![](/assets/images/dag 6-4.svg)
 
-Có 2 mũi tên cho vào $S$ nên nó là một **BIẾN XUNG ĐỘT (COLLIDER)**. Nguyên lý chính thì dễ hiểu: Khi bạn đặt điều kiện trên biến xung đột, nó tạo ra tương quan thống kê - nhưng không chắc nhân quả - giữa các nguyên nhân của nó. Trong trường hợp này, khi bạn biết một bài báo được chọn ($S$), thì biết thêm tính tin cậy ($T$) sẽ cung cấp thông tin về tính thời sự ($N$) của nó. Tại sao? Bởi vì nếu, ví dụ, một bài báo được chọn có tính tin cậy thấp, thì nó phải có tính thời sự cao. Nếu không nó đã không được chọn để nhận quỹ. Chiều ngược lại cũng đúng: Nếu bài báo được lựa chọn có tính thời sự thấp, thì chúng ta suy luận nó phải có tính tin cậy cao hơn mức trung bình. Ngược lại nó sẽ không được chọn để nhận quỹ.
+Có 2 mũi tên cho vào $S$ nên nó là một **BIẾN XUNG ĐỘT (COLLIDER)**. Nguyên lý chính thì dễ hiểu: Khi bạn đặt điều kiện trên biến xung đột, nó tạo ra tương quan thống kê - nhưng không chắc nhân quả - giữa các nguồn căn nguyên của nó. Trong trường hợp này, khi bạn biết một bài báo được chọn ($S$), thì biết thêm tính tin cậy ($T$) sẽ cung cấp thông tin về tính thời sự ($N$) của nó. Tại sao? Bởi vì nếu, ví dụ, một bài báo được chọn có tính tin cậy thấp, thì nó phải có tính thời sự cao. Nếu không nó đã không được chọn để nhận quỹ. Chiều ngược lại cũng đúng: Nếu bài báo được lựa chọn có tính thời sự thấp, thì chúng ta suy luận nó phải có tính tin cậy cao hơn mức trung bình. Ngược lại nó sẽ không được chọn để nhận quỹ.
 
 Đây là hiện tượng thông tin mà tạo ra tương quan giữa $T$ và $N$ trong quần thể các bài báo được chọn. và nó nghĩa là chúng ta phải chú ý đến quy trình chọn mẫu quan sát của chúng ta và có thể làm móp méo mối quan hệ giữa các biến. Nhưng cùng hiện tượng này cũng sẽ tạo ra mối quan hệ gây hiểu sai khi ở trong một mô hình thống kê, khi bạn cho thêm biến xung đột vào thành một biến dự đoán. Nếu bạn không cẩn thận, bạn có thể cho ra suy luận nhân quả sai hoàn toàn. Hãy xem ví dụ mở rộng sau đây.
 
 ### 6.3.1 Biến xung đột của nỗi buồn giả
 
-Đặt câu hỏi độ tuổi sẽ ảnh hưởng như thế nào đến niềm vui, nếu ta khảo sát độ tuổi và niềm vui của rất nhiều người. Nếu có tương quan, vậy nó có phải nhân quả không? Giả sử, khi con người được sinh ra đã có một giá trị niềm vui nền, và nó thay đổi theo độ tuổi. Tuy nhiên, niềm vui cũng ảnh hưởng đến nhiều sự kiện trong cuộc sống, ví dụ như hôn nhân. Người vui vẻ sẽ dễ dàng thành hôn hơn. Một biến khác ảnh hưởng đến hôn nhân là độ tuổi. Sống càng lâu thì tỉ lệ kết hôn cao. Và đây là mô hình:
+Xem xét câu hỏi tuổi tác sẽ ảnh hưởng như thế nào đến hạnh phúc. Nếu chúng ta khảo sát rất nhiều người và đánh giá hạnh phục của họ, thì tuổi tác có liên quan với hạnh phúc không? Nếu có, thì nó có phải liên quan nhân quả không? Ở đây, tôi muốn cho bạn thấy khi kiểm soát một biến có khả năng xung đột cho hạnh phúc có thể gây suy luận sai lệch về ảnh hưởng của tuổi tác như thế nào.
 
+Giả sử, chỉ để giảng dạy, là hạnh phúc trung bình của một người là một đặc tính được quyết định lúc mới sinh ra và không thay đổi theo tuổi. Tuy nhiên, hạnh phúc cũng ảnh hưởng đến nhiều sự kiện trong cuộc sống. Một trong những sự kiện đó là hôn nhân. Người vui vẻ sẽ dễ dàng thành hôn hơn. Một biến khác ảnh hưởng nhân quả đến hôn nhân là tuổi tác. Sống càng lâu thì xác suất kết hôn càng cao. Cho cả ba biến vào chung, và đây là mô hình nhân quả:
 
-Niềm vui $H$ và độ tuổi $A$ cùng gây ra kết hôn $M$. Cho nên $M$ là một collider. Mặc dù không có quan hệ nhân quả nào giữa niềm vui và độ tuổi, nhưng nế chúng ta hồi quy thêm biến $M$ vào, nó sẽ tạo ra tương quan thống kê giữa độ tuổi và niềm vui. Và ta sẽ lầm tưởng rằng niềm vui thay đỏi theo độ tuổi, mà trên thực tế nó là hằng định.
+![](/assets/images/dag 6-5.svg)
 
-Ta sẽ mô phỏng lại những gì ta đã nói ở trên. Thiết kế mô phỏng như sau:
-1. Mỗi năm, 20 người ra đời với giá trị niềm vui phân phối theo Uniform.
-2. Mỗi năm, mọi người sẽ thêm 1 tuổi. Niềm vui không thay đổi.
-3. Ở tuổi 18, cá nhân co thể kết hôn. Tỉ lệ kết hôn tương đương với niềm vui cá nhân.
+Hạnh phúc ($H$) và tuổi tác ($A$) cùng gây ra kết hôn ($M$). Cho nên kết hôn là một biến xung đột. Mặc dù không có quan hệ nhân quả nào giữa hạnh phúc và tuổi tác, nhưng nếu chúng ta đặt điều kiện trên kết hôn - tức là, nếu chúng ta hồi quy thêm biến $M$ vào - thì nó sẽ tạo ra tương quan thống kê giữa tuổi tác và hạnh phúc. Và Điều này có thể làm chúng ta hiểu sai rằng hạnh phúc thay đổi theo tuổi tác, mà trên thực tế nó là hằng định.
+
+Để thuyết phục bạn điều này, hãy làm một mô phỏng. Mô phỏng là hữu ích trong những ví dụ này, bởi vì đó là lúc chúng ta biết mô hình nhân quả thực sự. Nếu một quy trình không thể phát hiện ra sự thật trong ví dụ mô phỏng, thì chúng ta không nên tin nó ở thế giới thực. Lần này chúng ta sẽ làm một mô phỏng hoành tráng hơn, sử dụng mô hình theo kiểu người đại diện cho tuổi tác và hạnh phúc để tạo ra data mô phỏng dùng cho hồi quy. Thiết kế mô phỏng như sau:
+
+1. Mỗi năm, 20 người ra đời với giá trị hạnh phúc phân phối theo Uniform.
+2. Mỗi năm, mọi người sẽ thêm 1 tuổi. Hạnh phúc không thay đổi.
+3. Ở tuổi 18, các cá nhân có thể kết hôn. Xác suất kết hôn mỗi năm sẽ tỉ lệ với hạnh phúc cá nhân.
 4. Khi kết hôn, người đó luôn giữ trạng thái kết hôn.
-5. Sau 65 tuổi, người đó sẽ rời khỏi mẫu.
+5. Sau 65 tuổi, người đó sẽ rời khỏi mẫu. (Họ đi Tây Ban Nha)
 
+Chạy thuật toán này cho 1000 năm và thu thập kết quả:
+
+<b>code 6.21</b>
 ```python
 def sim_happiness(seed=1977, N_years=1000, max_age=65, N_births=20, aom=18):
     # age existing individuals & newborns
@@ -633,57 +640,66 @@ def sim_happiness(seed=1977, N_years=1000, max_age=65, N_births=20, aom=18):
     H = jnp.repeat(jnp.linspace(-2, 2, N_births)[None, :], N_years, 0).reshape(-1)
     # not yet married
     M = jnp.zeros(N_years * N_births, dtype=jnp.uint8)
-
     def update_M(i, M):
         # for each person over 17, chance get married
         married = dist.Bernoulli(logits=(H - 4)).sample(random.PRNGKey(seed + i))
         return jnp.where((A >= i) & (M == 0), married, M)
-
     M = lax.fori_loop(aom, max_age + 1, update_M, M)
     # mortality
     deaths = A > max_age
     A = A[~deaths]
     H = H[~deaths]
     M = M[~deaths]
-
     d = pd.DataFrame({"age": A, "married": M, "happiness": H})
     return d
-
-
 d = sim_happiness(seed=1977, N_years=1000)
 print_summary(dict(zip(d.columns, d.T.values)), 0.89, False)
 ```
+<samp>            mean    std  median   5.5%  94.5%   n_eff  r_hat
+      age  33.00  18.77   33.00   1.00  58.00    2.51   2.64
+happiness   0.00   1.21    0.00  -2.00   1.58  338.78   1.00
+  married   0.28   0.45    0.00   0.00   1.00   48.04   1.18</samp>
 
-|           |  mean |   std | median |  5.5% | 94.5% |  n_eff | r_hat |
-|       age | 33.00 | 18.77 |  33.00 |  1.00 | 58.00 |   2.51 |  2.64 |
-| happiness |  0.00 |  1.21 |   0.00 | -2.00 |  1.58 | 338.78 |  1.00 |
-|   married |  0.28 |  0.45 |   0.00 |  0.00 |  1.00 |  48.04 |  1.18 |
+<a name="f4"></a>![](/assets/images/fig 6-4.svg)
+<details class="fig"><summary>Hình 6.4: Data mô phỏng, giả định hạnh phúc là phân phối đồng dạng và không bao giờ thay đổi. Mỗi điểm là một người. Cá nhân đã kết hôn là màu đỏ. Ở độ tuổi sau 18, người hạnh phúc nhất sẽ dễ kết hôn hơn. Tuổi càng lớn, nhiều người sẽ kết hôn hơn. Tình trạn kết hôn là một biến xung đột của tuổi tác và hạnh phúc: $A \to M \gets H$. Nếu chúng ta đặt điều kiện trên kết hôn vào hồi quy, nó sẽ làm cho chúng ta hiểu sai là hạnh phúc giảm theo tuổi tác.</summary>
+{% highlight python %}plt.scatter(d[d['married']==0]['age'], d[d['married']==0]['happiness'], label='chưa kết hôn')
+plt.scatter(d[d['married']==1]['age'], d[d['married']==1]['happiness'], label='đã kết hôn')
+plt.gca().set(xlabel='tuổi', ylabel='hạnh phúc')
+plt.legend(bbox_to_anchor=(1, 1), loc=2)</details>
 
-![](/assets/images/fig 6-10.png)
+Kết quả thu được là 1300 mẫu quan sát với tất cả các độ tuổi từ mới sinh đến 65 tuổi. Các biến này tương ứng với các biến trong DAG trên, và mô phỏng này tuân theo DAG.
 
-Mô phỏng này sẽ chạy 1000 năm, kết quả thu được là 1300 mẫu quan sát, đúng với DAG đã mô tả ở trên. Giả sử bạn gặp data này nhưng không biết DAG đứng sau là như thế nào, bạn đặt câu hỏi độ tuổi sẽ ảnh hưởng niềm vui ra sao. Bạn lý luận rằng, tình trạng hôn nhân là một biến ảnh hưởng đến niềm vui. Mô hình tuyến tính của bạn như sau:
+Tôi đã thể hiện data này trong [**HÌNH 6.4**](#f4), mỗi cá nhân là một điểm. Điểm màu đỏ là các nhân đã kết hôn. Tuổi nằm ở trục hoành, và hạnh phúc ở trục tung, với những người hạnh phúc nhất nằm trên cùng. Ở tuổi 18, họ có thể kết hôn, và dần dần nhiều cá thể sẽ kết hôn mỗi năm. Cho nên ở tuổi lớn hơn, nhiều người kết hôn hơn. Nhưng ở toàn bộ các độ tuổi, người hạnh phúc nhất sẽ dễ kết hôn hơn.
 
-$$ \mu_i =\alpha_{\text{mid}[i]} + \beta_A A_i $$
+Giả sử bạn gặp data này và muốn hỏi rằng tuổi tác có liên quan đến hạnh phúc không. Bạn không biết mô hình nhân quả thực sự. Nhưng bạn lý lẽ rằng, tình trạng hôn nhân có thể là biến gây nhiễu. Nếu những người kết hôn có hạnh phúc hơn hay kém, trên trung bình, thì bạn cần phải đặt điều kiện trên tình trạng hôn nhân để suy luận quan hệ giữa tuổi và hạnh phúc.
 
-Trong đó `mid` là tình trạng hôn nhân. Dùng prior cho intercept dưới dạng *index* sẽ dễ dàng hơn cho kiểu dữ liệu phân nhóm. Về prior, ta xem xét slope $\beta_A$ trước, bởi vì intercept được suy diễn dựa vào slope. Ta có thể scale biến $A$ trước.
+Hãy thử hồi quy đa biến nhằm vào suy luận ảnh hưởng của tuổi tác trên hạnh phúc, khi kiểm soát tình trạng hôn nhân. Đây là một hồi quy đa biến bình thường, giống như những mô hình khác trong chương này và chương trước. Mô hình tuyến tính là đây:
 
+$$ \mu_i =\alpha_{\text{MID}[i]} + \beta_A A_i $$
+
+Trong đó `MID[i]` là chỉ số cho tình trạng hôn nhâ có cá thể $i$, với 0 là đơn thân, 2 là đã kết hôn. Đây chỉ là chiến thuật biến phân nhóm từ Chương 4. Tạo prior dễ hơn, khi chúng ta dùng nhiều intercept, mỗi một cái cho mỗi nhóm, hơn là chúng ta dùng biến chỉ điểm.
+
+Bây giờ chúng ta nên làm nhiệm vụ của mình và nghĩ về các prior. Hãy xem xét slope $\beta_A$ trước, bởi vì cách chúng ta chỉnh thang đo của biến $A$ sẽ quyết định ý nghĩa của intercept. Chúng ta sẽ tập trung chỉ vào những mẫu người trưởng thành, những người lớn hơn 18 tuổi. Tưởng tượng rằng có một mối quan hệ mạnh giữa tuổi tác và hạnh phúc, thì hạnh phúc này là tối đa vào lúc 18 tuổi giảm dần đến thấp nhất lúc 65 tuổi. Sẽ dễ hơn nếu chúng ta chỉnh thang đo tuổi tác để nó có khoảng từ 18 đến 65 là một đơn vị. Code này sẽ thực hiện điều đó:
+
+<b>code 6.22</b>
 ```python
 d2 = d[d.age > 17].copy()  # only adults
 d2["A"] = (d2.age - 18) / (65 - 18)
 ```
 
-Biến $A$ mới sẽ có giá trị từ 0 đến 1. Niềm vui sẽ ở thang điểm khác, từ -2 đến +2 trong data này. Nhớ rẳng 95% diện tích xác suất của data nằm ở khoảng -2SD đến 2SD, cho nên alpha nên có prior là Normal(0, 1). Ta sẽ tính posterior, cùng với đặt index cho biến $M$.
+Biến $A$ mới sẽ có giá trị từ 0 đến 1, 0 tương ứng với tuổi 18 và 1 là tuổi 65. Hạnh phúc sẽ ở thang đo khác, trong data này, từ -2 đến +2. Cho nên mối quan hệ tưởng tượng mạnh nhất, có hạnh phúc từ tối đa đến tối thiểu, có slope trải dài từ $(2-(-2))/1=4$. Nhớ rẳng 95% mật độ xác suất của phân phối normal là chứa trong vòng 2 đơn vị độ lệch chuẩn. Cho nên nếu chúng ta đặt độ lệch chuẩn của prior thành một nửa của 4, chúng ta đang nói rằng chúng ta mong đợi 95% các slope phù hợp sẽ nhỏ hơn quan hệ mạnh tối đa. Đây không phải là prior mạnh, nhưng lần nữa, nó chí ít giúp giới hạn suy luận trong khoảng thực tế. Bây giờ đến intercept. Mỗi $\alpha$ là giá trị $\mu_i$ khi $A_i =0$. Trong trường hợp này, có nghĩa là tuổi 18. Vậy chúng ta cần phải cho phép $\alpha$ chấp nhận toàn bộ khoảng của điểm hạnh phúc. Normal(0, 1) sẽ đặt 95% mật độ trong khoảng từ -2 đến +2.
 
+Cuối cùng, hãy ước lượng posterior. Chúng ta cần phải xây dựng biến chỉ số tình trạng hôn nhân. Tôi sẽ làm điều đó, và sau đó chạy `SVI`.
+
+<b>code 6.23</b>
 ```python
 d2["mid"] = d2.married
-
 def model(mid, A, happiness):
     a = numpyro.sample("a", dist.Normal(0, 1).expand([len(set(mid))]))
     bA = numpyro.sample("bA", dist.Normal(0, 2))
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a[mid] + bA * A
     numpyro.sample("happiness", dist.Normal(mu, sigma), obs=happiness)
-
 m6_9 = AutoLaplaceApproximation(model)
 svi = SVI(
     model,
@@ -694,21 +710,19 @@ svi = SVI(
     A=d2.A.values,
     happiness=d2.happiness.values,
 )
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_9 = svi.get_params(state)
+p6_9, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_9.sample_posterior(random.PRNGKey(1), p6_9, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+ a[0]  -0.20  0.06   -0.20  -0.30  -0.10  1049.96   1.00
+ a[1]   1.23  0.09    1.23   1.09   1.37   898.97   1.00
+   bA  -0.69  0.11   -0.69  -0.88  -0.53  1126.51   1.00
+sigma   1.02  0.02    1.02   0.98   1.05   966.00   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|  a[0] | -0.20 | 0.06 |  -0.20 | -0.30 | -0.10 | 1049.96 |  1.00 |
-|  a[1] |  1.23 | 0.09 |   1.23 |  1.09 |  1.37 |  898.97 |  1.00 |
-|    bA | -0.69 | 0.11 |  -0.69 | -0.88 | -0.53 | 1126.51 |  1.00 |
-| sigma |  1.02 | 0.02 |   1.02 |  0.98 |  1.05 |  966.00 |  1.00 |
+Mô hình khá khẳng định rằng tuổi tương quan âm với hạnh phúc. Chúng ta muốn so sánh suy luận từ mô hình này với mô hình mà không có tình trạng hôn nhân. Nó đây, theo sau đó là so sánh giữa các phân phối posterior biên:
 
-Mô hình khá khẳng định rằng tuổi tương quan âm với niềm vui. Ta sẽ so sánh suy luận từ mô hình này mà không có tình trạng hôn nhân.
-
+<b>code 6.24</b>
 ```python
 def model(A, happiness):
     a = numpyro.sample("a", dist.Normal(0, 1))
@@ -716,50 +730,62 @@ def model(A, happiness):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + bA * A
     numpyro.sample("happiness", dist.Normal(mu, sigma), obs=happiness)
-
 m6_10 = AutoLaplaceApproximation(model)
 svi = SVI(
     model, m6_10, optim.Adam(1), Trace_ELBO(), A=d2.A.values, happiness=d2.happiness.values
 )
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(1000))
-p6_10 = svi.get_params(state)
+p6_10, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_10.sample_posterior(random.PRNGKey(1), p6_10, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%   n_eff  r_hat
+    a   0.01  0.08    0.01  -0.12   0.12  931.50   1.00
+   bA  -0.01  0.13   -0.01  -0.22   0.21  940.88   1.00
+sigma   1.21  0.03    1.21   1.17   1.26  949.78   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |  n_eff | r_hat |
-|     a |  0.01 | 0.08 |   0.01 | -0.12 |  0.12 | 931.50 |  1.00 |
-|    bA | -0.01 | 0.13 |  -0.01 | -0.22 |  0.21 | 940.88 |  1.00 |
-| sigma |  1.21 | 0.03 |   1.21 |  1.17 |  1.26 | 949.78 |  1.00 |
+Mô hình này thì ngược lại, không có quan hệ giữa tuổi tác và hạnh phúc.
 
-Mô hình thứ 2 thì ngược lại, không có quan hệ giữa độ tuổi và niềm vui.
+Hiện tượng này là chính xác những gì chúng ta sẽ gặp nếu đặt điều kiện trên biến xung đột. Biến xung đột ở đây là tình trạng hôn nhân. Nó là một hệ quả chung của tuổi tác và hạnh phúc. Kết quả là, khi chúng ta đặt điều kiện trên nó, chúng ta tạo ra một mối quan hệ giả tạo giữa hai nguồn căn nguyên. Cho nên nó giống như là, để mô hình hoá `m6_9`, là tuổi tác tương quan âm với hạnh phúc. Nhưng đây chỉ là một quan hệ thống kê, không phải quan hệ nhân quả. Một khi chúng ta biết ai đó là kết hôn hay chưa, biết thêm tuổi tác sẽ cung cấp thêm thông tin về họ hạnh phúc như thế nào.
 
-Hiện tượng này là những gì ta sẽ gặp nếu đặt điều kiện lên biến collider. Collider ở đây là biến $M$, tình trạng hôn nhân. Khi chúng ta biết ai đó là kết hôn hay chưa, biết thêm độ tuổi không cung cấp thêm thông tin nào khác. Mô hình đầu tiên cho mối tương quan thống kê, không phải tương quan nhân quả.
+Bạn có thể thấy được hiện tượng này ở [**HÌNH 6.4**](#f4). Nhìn vào các điểm màu đỏ, những người đã kết hôn. Trong các điểm màu đỏ, người lớn tuổi thì ít hạnh phúc hơn. Đó là bởi vì theo thời gian nhiều người kết hôn hơn, và trung bình của hạnh phúc trong nhóm người kết hôn sẽ tiệm cận với hạnh phúc trung bình quần thể. Nhìn vào các điểm màu xanh, những người chưa kết hôn. Điều đó vẫn đúng khi hạnh phúc giảm dần theo độ tuổi. Đó là bởi vì những người có giá trị hạnh phúc cao hơn đã dần dần đi qua phần điểm màu đỏ. Cho nên cả hai quần thể chưa kết hôn và đã kết hôn, có một mối tương quan âm giữa tuổi tác và hạnh phúc. Nhưng không quần thể nào phản ảnh đúng quan hệ nhân quả.
 
-Bạn có thể thấy được hiện tượng này ở hình trên. Nhìn vào các điểm xanh, nhữngn người đã kết hôn. Trong các điểm xanh, người lớn tuổi thì ít niềm vui hơn. Bởi vì theo thời gian nhiều người kết hôn hơn, và trung bình của niềm vui sẽ tiệm cận với niềm vui trung bình quần thể. Nhìn vào các điểm trắng, bởi vì người có giá trị niềm vui cao hơn đi qua phân điểm xanh, cho nên có mối tương quan âm giữa tuổi và niềm vui ở cả 2 quần thể.
+Trong ví dụ này này thì nó dễ được nhận ra. Kết hôn có nên ảnh hưởng hạnh phúc? Giả sử hạnh phục thực sự thay đổi theo tuổi tác? Nhưng điều đó không liên quan đến vấn đề chính. Nếu bạn không có mô hình nhân quả, bạn không thể tạo suy luận từ hồi quy đa biến. Và hồi quy bản thân nó không cung cấp các bằng chứng cần thiết cho mô hình nhân quả. Thực vậy, bạn cần đến khoa học.
 
 ### 6.3.2 DAG bị ám
 
-Collider bias xuất phát từ việc đặt điều kiện lên một hậu quả chung, như ví dụ trước. Nếu có thể dựng sơ đồ nhân quả, chúng ta có thể tránh được điều này. Nhưng việc phát hiện collider không dễ dàng chút nào, bởi có nhiều nguồn không đo đạc được. Nguồn không đo đạc được vẫn gây ra collider bias. Có thể nói DAG của chúng ta đã bị ám.
+Sai lệch xung đột xuất phát từ việc đặt điều kiện trên một hệ quả chung, như ví dụ trước. Nếu có thể dựng sơ đồ nhân quả, chúng ta có thể tránh được điều này. Nhưng việc phát hiện một biến xung đột tiềm năng không dễ dàng chút nào, bởi vì còn có nhiều nguồn căn nguyên không đo đạc được. Nguồn căn nguyên không đo đạc được vẫn có thể gây ra sai lệch xung đột. Cho nên tôi xin lỗi và nói rằng chúng ta cũng phải suy nghĩ đến khả năng là DAG của chúng ta đã bị ám.
 
-Giả sử ta muốn suy luận ảnh hưởng của cả cha mẹ $(P)$ và ông bà $(G)$ lên kết quả giáo dục của con cái $(C)$. Bởi vì ông bà ảnh hưởng đến giáo dục con cái, nên có mũi tên từ $G \to P$.
+Giả sử chúng ta muốn suy luận ảnh hưởng của cả cha mẹ ($P$) và ông bà ($G$) lên thành tích giáo dục của con cái ($C$). Bởi vì ông bà được giả định ảnh hưởng đến giáo dục con của họ, có mũi tên từ $G \to P$. Đến đây điều này có vẻ dễ dàng. Nó giống như cấu trúc của ví dụ tỉ suất ly dị từ chương trước:
 
-![](/assets/images/fig 6-11.png)
+![](/assets/images/dag 6-6.svg)
 
-Nhưng giả sử có thêm một yếu tố không đo đạc được, ảnh hưởng đến cả cha mẹ lẫn con cái, như yếu tố môi trường, nhưng lại không ảnh hưởng đến ông bà ( có thể nhà xa ). Lúc đó DAG của chúng ta bị ám bởi biến $U$ không được quan sát:
+Nhưng giả sử có thêm một yếu tố chung không đo đạc được, ảnh hưởng đến cả cha mẹ lẫn con cái, như yếu tố hàng xóm, nhưng lại không ảnh hưởng đến ông bà (những người sống ở bờ nam nước Tây Ban Nha). Lúc đó DAG của chúng ta bị ám bởi biến $U$ không được quan sát:
 
-![](/assets/images/fig 6-12.png)
+![](/assets/images/dag 6-7.svg)
 
-Bây giờ $P$ là kết quả chung của $G$ và $U$, cho nên nếu ta đặt điều kiện lên $P$, suy luận $G \to C$ sẽ bị bias, cho dù có hay không đo đạc $U$. Ta sẽ mô phỏng thử 300 cặp ba ông bà, cha mẹ, và con cái.
+Bây giờ $P$ là kết quả chung của $G$ và $U$, cho nên nếu ta đặt điều kiện trên $P$, nó sẽ làm sai lệch suy luận về $G \to C$, *cho dù chúng ta không bao giờ đo đạc được $U$*. Tôi không mong đợi sự thật này sẽ rõ ràng ngay lúc này. Cho nên hãy tiếp tục qua một ví dụ định lượng.
 
+Đầu tiên, hãy mô phỏng thử 200 cặp ba ông bà, cha mẹ, và con cái. Mô phỏng này thì dễ. Chúng ta chỉ cần ánh xạ DAG của chúng ta vào một chuỗi các quan hệ chức năng. DAG trên suy ra rằng:
+
+1. $P$ là một hàm số của $G$ và $U$
+2. $C$ là một hàm số của $G$, $P$, và $U$
+3. $G$ và $U$ không phải hàm số của những biến số đã biết khác
+
+Chúng ta có thể cho những gợi ý năng thành một mô phỏng đơn giản, sử dụng `dist.Normal` để tạo ra những mẫu quan sát. Nhưng để làm điều này, chúng ta cần phải chính xác hơn là "một hàm số". Cho nên tôi sẽ tạo ra một vài độ mạnh của các quan hệ:
+
+<b>code 6.25</b>
 ```python
 N = 200  # number of grandparent-parent-child triads
 b_GP = 1  # direct effect of G on P
 b_GC = 0  # direct effect of G on C
 b_PC = 1  # direct effect of P on C
 b_U = 2  # direct effect of U on P and C
+```
 
+Những tham số này giống như slope của mô hình hồi quy. Chú ý rằng tôi giả định là ông bà $G$ có zero hiệu ứng đến con cháu $C$. Ví dụ này không phụ thuộc vào hiệu ứng chính xác bằng zero, nhưng chỉ để bài học rõ ràng hơn. Bây giờ chúng ta dùng những slope này để tạo mẫu ngẫu nhiên:
+
+<b>code 6.26</b>
+```python
 with numpyro.handlers.seed(rng_seed=1):
     U = 2 * numpyro.sample("U", dist.Bernoulli(0.5).expand([N])) - 1
     G = numpyro.sample("G", dist.Normal().expand([N]))
@@ -768,10 +794,11 @@ with numpyro.handlers.seed(rng_seed=1):
     d = pd.DataFrame({"C": C, "P": P, "G": G, "U": U})
 ```
 
-Để ý rằng, slope $b_GC =0$, ông bà không ảnh hưởng gì đến con cái, mục đích để làm rõ hơn hiệu ứng bias do collider. Tương tự, biến $U$ là biến nhị phân $(-1,1)$.
+Tôi đã làm cho hiệu ứng cho hàng xóm, $U$, là nhị phân. Điều này sẽ làm cho ví dụ dễ hiểu hơn. Nhưng ví dụ không phụ thuộc vào giả định. Những dòng khác chỉ là mô hình tuyến tính dưới dạng `dist.Normal`.
 
-Bây giờ chúng ta sẽ suy luận ảnh hưởng của ông bà. Bởi vì hiệu ứng của ông bà có liên quan gián tiếp đến con cái thông qua cha mẹ, nên ta phải thêm biến $P$.
+Bây giờ chuyện gì sẽ xảy ra nếu chúng ta sẽ suy luận ảnh hưởng của ông bà? Bởi vì một vài của toàn bộ hiệu ứng ông bà truyền gián tiếp đến con cái thông qua cha mẹ, chúng ta nhận ra chúng ta cần kiểm soát biến cha mẹ. Đây là một hồi quy đơn giản của $C$ trên $P$ và $G$. Thông thường tôi sẽ khuyến cáo chuẩn hoá các biến, bởi vì nó giúp thành lập các prior hợp lý dễ dàng hơn. Nhưng tôi sẽ giữa data mô phỏng này ở thang đo gốc, để bạn có thể thấy được suy luận như thế nào về các slope trên. Nếu chúng ta thay đổi thang đo, chúng ta sẽ không mong đợi có những giá trị đó lại. Nhưng nếu chúng ta giữ nguyên thang đo, chúng ta có thể sẽ lấy lại thứ gì đó gần với những giá trị này. Cho nên tôi xin lỗi vì dùng prior mơ hồ ở đây, chỉ để tiếp tục ví dụ.
 
+<b>code 6.27</b>
 ```python
 def model(P, G, C):
     a = numpyro.sample("a", dist.Normal(0, 1))
@@ -780,8 +807,6 @@ def model(P, G, C):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + b_PC * P + b_GC * G
     numpyro.sample("C", dist.Normal(mu, sigma), obs=C)
-
-
 m6_11 = AutoLaplaceApproximation(model)
 svi = SVI(
     model, m6_11, optim.Adam(0.3), Trace_ELBO(), P=d.P.values, G=d.G.values, C=d.C.values
@@ -792,23 +817,38 @@ p6_11 = svi.get_params(state)
 post = m6_11.sample_posterior(random.PRNGKey(1), p6_11, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+    a  -0.08  0.10   -0.09  -0.24   0.06  1049.96   1.00
+ b_GC  -0.71  0.11   -0.71  -0.89  -0.55   813.76   1.00
+ b_PC   1.72  0.04    1.72   1.65   1.79   982.64   1.00
+sigma   1.39  0.07    1.39   1.28   1.49   968.54   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|     a | -0.08 | 0.10 |  -0.09 | -0.24 |  0.06 | 1049.96 |  1.00 |
-|  b_GC | -0.71 | 0.11 |  -0.71 | -0.89 | -0.55 |  813.76 |  1.00 |
-|  b_PC |  1.72 | 0.04 |   1.72 |  1.65 |  1.79 |  982.64 |  1.00 |
-| sigma |  1.39 | 0.07 |   1.39 |  1.28 |  1.49 |  968.54 |  1.00 |
+Hiệu ứng được suy luận ra của cha mẹ khá cao, lớn gấp 2 lần hơn giá trị mô phỏng của nó. Không có gì ngạc nhiên. Vài tương quan giữa $P$ và $C$ còn do $U$, và mô hình thì không biết $U$. Đây là một hiện tượng nhiễu đơn giản. Ngạc nhiên hơn là mô hình tin rằng hiệu ứng trực tiếp của ông bà là gây tổn hại đến con cháu của họ. Mô hình tuyến tính không sai. Nhưng diễn giải nhân quả của quan hệ này có vấn đề.
 
-Hiệu ứng của cha mẹ khá cao, lớn gấp 2 lần hơn giá trị mô phỏng của nó. Không có gì ngạc nhiên, bởi vì tương quan giữa $P$ và $C$ còn do $U$, và mô hình thì không biết $U$. Ngạc nhiên hơn là hiệu ứng trực tiếp của ông bà là âm. Mô hình tuyến tính không sai, mà là diễn giải nhân quả có vấn đề.
+<a name="f5"></a>![](/assets/images/fig 6-5.svg)
+<details class="fig"><summary>Hình 6.5: Hiện tượng nhiễu không được quan sát và sai lệch xung đột. Trong ví dụ này, ông bà ảnh hưởng con cháu chỉ qua con đường gián tiếp qua cha mẹ. Tuy nhiên, hiệu ứng hàng xóm không quan sát được lên cha mẹ và con cái của họ tạo ra ảo giác rằng ông bà gây hại cho giáo dục con cháu. Giáo dục cha mẹ là một biến xung đột: Một khi chúng ta đặt điều kiện trên nó, giáo dục ông bà trở hành tương quan âm với giáo dục con cháu.</summary>
+{% highlight python %}plt.scatter(d[d['U']==-1]['G'], d[d['U']==-1]['C'], edgecolor='C0',s=50, facecolor='white')
+plt.scatter(d[d['U']==1]['G'], d[d['U']==1]['C'], edgecolor='C1', s=50, facecolor='white')
+g_seq = np.linspace(-3,3,100)
+plt.plot(g_seq, g_seq*-0.71)
+lb, up = np.quantile(d['P'], q=[0.45, 0.60])
+d2 = d[(d['P']>lb) & (d['P']< up)]
+plt.scatter(d2[d2['U']==-1]['G'], d2[d2['U']==-1]['C'], edgecolor='C0',s=50)
+plt.scatter(d2[d2['U']==1]['G'], d2[d2['U']==1]['C'], edgecolor='C1', s=50)
+plt.gca().set(xlabel="giáo dục của ông bà (G)", ylabel="giáo dục của con cái(C)")
+plt.annotate('Hàng xóm tốt', (-2,8), color='C1')
+plt.annotate('Hàng xóm xấu', (1,-8), color='C0')
+plt.text(-2.5, 10, "Cha mẹ ở khoảng 45 đến 60 percentile"){% endhighlight %}</details>
 
-![](/assets/images/fig 6-13.png)
+Vậy sai lệch xung đột xuất phát từ đâu trong trường hợp này? Nhìn vào [**HÌNH 6.5**](#f5). Trục hoành là giáo dục của ông bà, trục tung là giáo dục của con cháu. Có 2 đám mây các điểm. Điểm màu đỏ là con cái ở môi trường tốt ($U=1$). Điểm xanh là con cái ở môi trường xấu ($U=-1$). Nhìn tổng thể cả hai đám mây các điểm thì thấy tương quan dương giữa $G$ và $C$. Những người ông bà giáo dục tốt sẽ có những người cháu được giáo dục tốt, nhưng toàn bộ hiệu ứng này là thông qua cha mẹ. Tại sao? Bởi vì data này theo mô phỏng của chúng ta. Hiệu ứng của $G$ trong mô phỏng là zero.
 
-Nhìn hình trên, trục hoành là giáo dục của ông bà, trục tung là giáo dục của con cái, có 2 nhóm điểm. Điểm xanh là con cái ở môi trường tốt ($U=1$). Điểm đen là con cái ở môi trường xấu ($U=-1$). Nhìn tổng thể thì $G$ có hiệu ứng tích cực lên $P$, nhưng toàn bộ hiệu ứng này là từ cha mẹ. Tại sao? Bởi vì data này theo mô phỏng của chúng ta. Hiệu ứng của $G$ là zero.
+Vậy tương quan âm này từ đâu, khi chúng ta đặt điều kiện lên cha mẹ? Đặt điều kiện lên cha mẹ giống như chọn ra trong nhóm cha mẹ giống nhau về giáo dục. Hãy thử điều đó. Trong [**HÌNH 6.5**]($f5), tôi đã tô màu những cha mệ giữa khoảng giáo dục từ 45 đến 60 percentile. Không có gì đặc biệt về hoảng này. Nó chỉ giúp hiện tượng được dễ nhận ra hơn. Bây giờ nếu chúng ta vẽ đường hồi quy chỉ bằng những điểm này, hồi quy $C$ trên $G$, slope sẽ là số âm. Sẽ có tương quan âm trong hồi quy đa biến này. Tại sao như vậy?
 
-Vậy tương quan âm từ đâu, khi chúng ta đặt điều kiện lên cha mẹ? Đặt điều kiện lên cha mẹ giống như chọn nhóm cha mẹ giống nhau về giáo dục. Trong hình trên, những cha mẹ cùng giáo dục trong khoảng 45th đến 60th percentile được tô đậm. Nếu ta vẽ dường hồi quy lên bằng những điểm này, hồi quy $C$ trên $G$, slope sẽ là số âm. Tại sao như vậy?
+Nó tồn tại bởi vì khi ta biết $P$, biết thêm $G$ vô tình nói cho chúng ta biết về hàng xóm $U$, và $U$ liên quan đến kết cục $C$. Tôi biết điều này rất khó hiểu. Như tôi luôn nói, nếu bạn thấy hoang mang, đó là bởi vì bạn đang tập trung. Hãy xem xét hai cha mẹ khác nhau có cùng mức độ giáo dục, ví dụ ở điểm trung vị 50 percentile. Một trong những cha mẹ này có ông bà có giáo dục tốt. Những cha mẹ khác thì có ông bà ít giáo dục hơn. Cách duy nhất có thể, trong ví dụ này, để cha mẹ có cùng mức giáo dục là họ sống trong môi trường hàng xóm khác nhau. Chúng ta không thể thấy hiệu ứng của hàng xóm - chúng ta chưa đo lường nó, hãy nhớ lại - nhưng ảnh hưởng của hàng xóm vấn truyền trải qua con cháu $C$. Cho nên hai cha mẹ huyền ảo này có cùng mức giáo dụ, người có ông bà giáo dục tố trở nên có người cháu ít giáo dục hơn. Người có ông bà ít giáo dục lại trở thành con người cháu giáo dục tốt hơn. $G$ dự đoán $C$ thấp hơn. 
 
-Bởi vì khi ta biết $P$, biết thêm $G$ sẽ gián tiếp cho ta biết môi trường giáo dục $U$, và $U$ ảnh hưởng $C$. Biến $U$ không đo đạc được làm cho $P$ thành collider, và đặt điều kiện lên $P$ tạo ra bias. Ta phải làm gì? Ta phải đo $U$. Đây là mô hình hồi quy tuyến tính có $U$:
+Biến $U$ không đo lường được làm cho $P$ thành biến xung đột, và đặt điều kiện lên $P$ tạo ra sai lệch xung đột. Vậy chúng ta có thểlàm gì? Bạn phải đo lường $U$. Đây là hồi quy có đặt điều kiện trên $U$:
 
+<b>code 6.28</b>
 ```python
 def model(P, G, U, C):
     a = numpyro.sample("a", dist.Normal(0, 1))
@@ -818,8 +858,6 @@ def model(P, G, U, C):
     sigma = numpyro.sample("sigma", dist.Exponential(1))
     mu = a + b_PC * P + b_GC * G + b_U * U
     numpyro.sample("C", dist.Normal(mu, sigma), obs=C)
-
-
 m6_12 = AutoLaplaceApproximation(model)
 svi = SVI(
     model,
@@ -831,57 +869,70 @@ svi = SVI(
     U=d.U.values,
     C=d.C.values,
 )
-init_state = svi.init(random.PRNGKey(0))
-state, loss = lax.scan(lambda x, i: svi.update(x), init_state, jnp.zeros(2000))
-p6_12 = svi.get_params(state)
+p6_12, losses = svi.run(random.PRNGKey(0), 1000)
 post = m6_12.sample_posterior(random.PRNGKey(1), p6_12, (1000,))
 print_summary(post, 0.89, False)
 ```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+    U   1.87  0.17    1.88   1.59   2.11  1009.20   1.00
+    a  -0.06  0.08   -0.05  -0.18   0.07   766.03   1.00
+ b_GC   0.01  0.10    0.01  -0.15   0.17  1031.98   1.00
+ b_PC   0.99  0.07    0.99   0.88   1.11  1106.62   1.00
+sigma   1.08  0.05    1.08   0.99   1.16   797.58   1.00</samp>
 
-|       |  mean |  std | median |  5.5% | 94.5% |   n_eff | r_hat |
-|     U |  1.89 | 0.17 |   1.90 |  1.61 |  2.14 | 1009.20 |  1.00 |
-|     a | -0.03 | 0.08 |  -0.03 | -0.15 |  0.10 |  765.90 |  1.00 |
-|  b_GC |  0.03 | 0.10 |   0.04 | -0.13 |  0.20 | 1032.11 |  1.00 |
-|  b_PC |  1.02 | 0.07 |   1.02 |  0.90 |  1.14 | 1106.88 |  1.00 |
-| sigma |  1.09 | 0.05 |   1.09 |  0.99 |  1.17 |  832.71 |  1.00 |
+Và những slope này phù hợp với data mà chúng ta mô phỏng.
 
-Và slope của posterior này phù hợp với data mà chúng ta mô phỏng.
+<div class="alert alert-info">
+<p><strong>Nghịch lý thống kê và giải thích nhân quả.</strong> Ví dụ ông bà là một ví dụ điển hình của <strong>NGHỊCH LÝ SIMPSON</strong>. Việc thêm biến dự đoán mới ($P$ trong ví dụ này) làm đảo dấu tương quan giữa vài biến dự đoán ($G$) với biến kết cục ($C$). Thông thường, nghịc lý Simpson được trình bày dưới dạng thêm biến mới là có ích. Nhưng trong trường hợp này, nó gây chúng ta hiểu sai. Nghịch lý Simpson là một hiện tượng thống kê. Để biết sự đảo dấu tương quan này có phản ánh chính quan hệ nhân quả, chúng ta cần thứ gì đó hơn là chỉ mô hình thống kê.</p></div>
 
->Paradox thống kê và giải thích nhân quả: Ví dụ này là một ví dụ điển hình của Simpson's paradox. Việc thêm biến mới làm đảo dấu của tương quan giữa các các biến dự đoán với biến kết cục. Thông thường, Simpson's paradox được trình bày dưới dạng thêm biến mới là co ích, nhưng trong trường hợp này, nó gây hiểu lầm cho người làm thống kê. Simpson's paradox là hiện tượng thống kê. Để biết sự đảo dấu này là có quan hệ nhân quả chính xác, ta cần thêm công cụ nhiều hơn đơn thuần mô hình thống kê.
+## <center>6.4 Đối phó với nhiễu</center><a name="a4"></a>
 
-## <center>6.4 Đối phó với sai lệch (confounding)</center><a name="a4"></a>
+Trong chương này và chương trước, có nhiều ví dụ về cách chúng ta dùng hồi quy đa biến để đối phó với nhiễu. Nhưng chúng ta cũng thấy hồi quy đa biến cũng có thể *gây* ra nhiễu - kiểm soát sai biến sẽ tàn phá suy luận. Hi vọng rằng tôi đã thành công doạ các bạn để biết sợ hãi việc thêm tất cả mọi thứ vào mô hình và hi vọng hồi quy tự xử lý, cũng như khích lệ các bạn tin rằng suy luận hiệu quả là có thể, nếu chúng ta cẩn thận và tự trang bị đủ kiến thức.
 
-Trong chương này và chương trước, có nhiều ví dụ về cách chúng ta dùng hồi quy đa biến để đối phó với sai lệch. Và chúng ta cũng thấy hồi quy đa biến cũng có thể gây sai lệch - thêm sai biến sẽ gây ảnh hưởng suy luận. Hi vọng rằng bạn đã biết sợ hãi việc thêm một biến, cho hệ thống hồi quy tự chạy. Và bạn có niềm tin rằng suy luận đúng nếu chúng ta cẩn thận và tự trang bị đủ kiến thức.
+Nhưng nguyên tắc nào giải thích cho việc đôi khi thêm hoặc bỏ các biến có thể tạo ra cùng một hiện tượng? Có những quái vật nhân quả nào khác ở ngoài kia, ám ảnh sơ đồ của chúng ta? Chúng ta cần thêm vài nguyên tắc để gộp các ví dụ này lại.
 
-Nhưng nguyên tắc nào giải thích cho việc thêm hoặc bỏ các biến ảnh hưởng suy luận?
+Hãy định nghĩa **NHIỄU (CONFOUNDING)** là trong bất kỳ bối cảnh mà trong đó quan hệ giữa kết cục $Y$ và biến dự đoán quan tâm $X$ không giống như vón dĩ của nó, nếu chúng ta thí nghiệm quyết định các giá trị của $X$. Ví dụ , giả sử chúng ta quan tâm đến quan hệ giữa đào tạo $E$ và bậc lương $W$. Vấn đề là trong một quần thể điển hình có rất nhiều biến không được quan sát $U$ ảnh hưởng cả $E$ và $W$. Ví dụ bao gồm nơi người đó ở, cha mẹ là ai, và bạn bè họ là ai. DAG sẽ trông giống như vậy:
 
-Xem xét định nghĩa sai lệch trong trường hợp suy luận hiệu ứng từ biến dự đoán $X$ đến biến kết cục $Y$. Ví dụ tương quan giữa đào tạo $E$ và bậc lương $W$. Vấn đề là có rất nhiều biến không được quan sát $U$ ảnh hưởng cả $E$ và $W$, như môi trường, giai đình, bạn bè.
+![](/assets/images/dag 6-8.svg)
 
-![](/assets/images/fig 6-14.png)
+Nếu ta hồi quy $W$ trên $E$, ước lượng hiệu ứng nhân quả sẽ bị nhiễu bởi $U$. Nó bị nhiễu, bởi vì có 2 con đường nối giữa $E$ và $W$: (1) $E \to W$
+và (2) $E \gets U \to W$. Một "con đường" ở đây nghĩa là bất kỳ dãy các biến số mà bạn có thể đi qua từ một biến đến một biến khác, bỏ qua hướng của các mũi tên. Cả hai con đường này nếu tạo tương quan thống kê giữa $E$ và $W$. Nhưng chỉ có con đường đầu tiên là nhân quả, con đường thứ hai là không nhân quả. Tại sao? Bởi vì nếu con đường thứ hai tồn tại, và chúng ta thay đổi $E$, nó sẽ không thay đổi $W$. Toàn bộ hiệu ứng nhân quả của $E$ trên $W$ hoạt động chỉ trên con đường thứ nhất.
 
-Nếu ta hồi quy $W$ bằng $E$, ước lượng hiệu ứng nhân quả sẽ bị sai lệch bởi $U$. Nó bị sai lệch, bởi vì có 2 con đường nối giữa $E$ và $W$.
-1. $E \to W$
-2. $E \gets U \to W$.
+Làm sao để cách ly con đường nhân quả? Giải pháp nổi tiếng nhất là chạy nghiên cứu can thiệp. Nếu chúng ta có thể gán mức giáo dục ngẫu nhiên, nó thay đổi DAG:
 
-"Con đường" là dãy các biến số nối giữa biến dự đoán $X$ và biến kết cục $Y$, bỏ qua chiều của các mũi tên. Cả 2 con đường này nếu tạo tương quan thống kê giữa $E$ và $W$. Nhưng chỉ có con đường đầu tiên là nhân quả, con đường thứ hai là không nhân quả. Tại sao? Bởi vì nếu con đường thứ 2 tồn tại, thay đổi $E$ sẽ không ảnh hưởng $W$. Toàn bộ hiệu ứng nhân quả từ $E \to W$ ở con đường thứ nhất.
+![](/assets/images/dag 6-9.svg)
 
-Làm sao để cách ly con đường nhân quả. Giải pháp nổi tiếng nhất là chạy nghiên cứu can thiệp. Nếu chúng ta có thể gán giáo dục ngẫu nhiên, nó thay đổi DAG:
+Sự kiểm soát loại bỏ ảnh hưởng của $U$ trên $E$. Biến không được quan sát không ảnh hưởng đến giáo dục khi chúng ta tự quyết định giáo dục. Với sự loại bỏ ảnh hưởng từ $U$ trên $E$, con đường $E \gets U \to W$ bị mất đi. Nó chặn con đường thứ hai. Khi con đường bị chặn, chỉ còn một con đường để thông tin đi từ $E$ đến $W$, và sau đó đo lường hiệu ứng giữa $E$ và $W$ sẽ cho một ước lượng tốt cho suy luận nhân quả. Sự kiểm soát loại trừ nhiễu, bởi vì nó chặn những con đường khác từ $E$ sang $W$.
 
-![](/assets/images/fig 6-15.png)
+May mắn thay, có phương pháp thống kê học để đạt được điều này, mà không cần thực sự kiểm soát $E$. Cách nào? Cách rõ ràng nhất là thêm $U$ vào mô hình, đặt điều kiện trên $U$. Tại sao điều này lại loại bỏ được nhiễu? Bởi vì nó chặn dòng chảy thông tin giữa $E$ và $W$ thông qua $U$. Nó chặn con đường thứ hai.
 
-Kiểm soát loại bỏ ảnh hưởng của $U$ vào $E$. Biến không được quan sát không ảnh hưởng đến giáo dục khi chúng ta tự quyết định giáo dục. Với sự loại bỏ ảnh hưởng từ $U$ lên $E$, con đường $E \gets U \to W$ bị mất đi. Nó chặn con đường thứ hai. Khi con đường bị chặn, chỉ còn một con đường cho thông tin đi từ $E$ đến $W$, và đo đạc hiệu ứng giữa $E$ và $W$ sẽ cho một ước lượng tốt cho suy luận nhân quả. Kiểm soát sẽ loại trừ sai lệch, bởi vì nó chặn những con đường khác từ $E$ sang $W$.
+Để hiểu tại sao đặt điều kiện trên $U$ chặn con đường $E \gets U \to W$, bạn cần nghĩ con đường này là một mô hình độc lập khác. Khi bạn biết $U$, biết thêm $E$ không cho thông tin gì thêm về $W$. Giả sử $U$ là mức độ giàu có trung bình tại một vùng. Vùng giàu có hơn có nhiều trường tốt hơn, dẫn đến giáo dục $E$ tốt hơn, cũng như công việc có lương $W$ khá hơn. Nếu bạn không biết vùng mà người đó đang sống, biết được giáo dục $E$ của người đó sẽ cho thêm thông tin về mức lương $W$, bởi vì $E$ và $W$ đều tương quan với vùng miền sinh sống. Nhưng sau khi bạn biết được vùng sinh sống của người đó, giả sử không còn đường nào khác giữa $E$ và $W$, thì biết thêm  $E$ sẽ không cho thông tin thêm về $W$. Điều này cũng giống như đặt điều kiện trên $U$ sẽ chặn đường - nó làm cho $E$ và $W$ độc lập, với điều kiện trên $U$.
 
-May mắn thay, có phương pháp thống kê học để đạt được điều này, mà không cần kiểm soát $E$. Cách rõ ràng nhất là thêm $U$ vào mô hình, đặt điều kiện vào $U$. Tại sao điều này lại loại bỏ được sai lệch? Bởi vì nó chặn dòng chảy thông tin từ $E$ tới $W$ qua $U$. Nó chặn con đường thứ hai.
+### 6.4.1. Chặn của sau
 
-Để hiểu tại sao đặt điều kiện lên $U$ chặn con đường $ E \gets U \to W$, bạn cần nghĩ con đường này là một mô hình độc lập khác. Khi bạn biết $U$, biết thêm $E$ không cho thông tin gì thêm về $W$. Giả sử $U$ là GPD trung bình tại một vùng. Vùng giàu có hơn có nhiều trường hơn, dẫn đến giáo dục tốt hơn, cũng như công việc có lương $W$ khá hơn. Nếu bạn không biết vùng mà người đó sống, biết được giáo dục $E$ của người đó sẽ cho thêm thông tin về mức lương $W$, bởi vì $E$ và $W$ đều tương quan với vùng miền sinh sống. Nhưng khi bạn biết được vùng sinh sống, với điều kiện không còn đường nào khác giữa $E$ và $W$, biết $E$ sẽ không cho thông tin thêm về $W$. 
+Chặn các con đường gây nhiễu giữa vài biến dự đoán $X$ và biến kết cục $Y$ còn gọi là chặn **CỬA SAU (BACKDOOR)**. Chúng ta không muốn có quan hệ giả tạo nào len lỏi trong những con đường không phải nhân quả mà đi vào sau lưng biến dự đoán $X$. Trong ví dụ trên, con đường $E \gets U \to W$ là backdoor, bởi nó vào $E$ bằng mũi tên và kết nối $E$ với $W$. Con đường này là không mang tính nhân quả - can thiệp trên $E$ sẽ không gây thay đổi $W$ qua con đường này - nhưng nó vẫn tạo tương quan giữa $E$ và $W$.
 
-### 6.4.1. Chặn backdoor
+Có một tin tốt là, với một sơ đồ nhân quả DAG, luôn luôn có thể phát hiện, nếu có bất kỳ, các biến nào phải kiểm soát để chặn các con đường backdoor. Nó cũng có thể phát hiện biến nào mà chúng không được kiểm soát, để tránh tạo ra nhiễu mới. Và - tin tốt hơn nữa - chỉ có bốn loại quan hệ giữa các biến để kết hợp lại tạo thành mọi DAG khả dĩ. Cho nên bạn chỉ cần hiểu bốn món này và cách thông tin lan truyền trong chúng. Tôi sẽ định nghĩa bốn loại quan hệ này. Sau đó sẽ thực hành trên ví dụ.
 
-Chặn các con đường gây sai lệch giữa biến dự đoán $X$ và biến kết cục $Y$ còn gọi là chặn backdoor. Chúng ta không muốn có quan hệ ảo nào trong những con đường không phải nhân quả mà đi vào $X$. Trong ví dụ trên, $E \gets U \to W$ là backdoor, bởi nó vào $E$ và kết nối $E$ với $W$. Con đường này là không mang tính nhân quả, nhưng vẫn tạo tương quan giữa $E$ và $W$.
+<a name="f1"></a>![](/assets/images/fig 6-6.svg)
+<details class="fig"><summary>Hình 6.6: Bốn nguyên tố tạo gây nhiễu. Bất kỳ DAG nào cũng được xây dựng trên những quan hệ cơ bản này. Từ trái sang phải: $X \perp\\!\\!\perp Y \|Z$ trong Fork và Pipe, $X \perp\\!\\!\\!\not{}\\!\\!\\!\perp Y \|Z$ trong Collider, và điều kiện trên Descendant D giống như đặt điều kiện trên cha $Z$.</summary>
+{% highlight python %}dag = CausalGraphicalModel(
+    nodes=["X","Y",'Z',"X1","Z1","Y1","X2","Z2","Y2","X3","Z3","Y3","D3"],
+    edges=[("Z","X"), ("Z","Y"),("X1","Z1"),("Z1","Y1"),("X2","Z2"),("Y2","Z2"),("X3","Z3"),("Z3","D3"),("Y3","Z3")]
+)
+pgm = daft.PGM()
+coordinates = {"X":(0,0),"Z":(1,2),"Y":(2,0),"X1":(3,0),"Z1":(4,1),"Y1":(5,2),"X2":(6,2),"Z2":(7,0),"Y2":(8,2),"X3":(9,2),"Z3":(10,0),"D3":(10,1.5),"Y3":(11,2)}
+for node in dag.dag.nodes:
+    pgm.add_node(node, node[0], *coordinates[node])
+for edge in dag.dag.edges:
+    pgm.add_edge(*edge)
+pgm.add_text(0.5,-0.5, "The Fork")
+pgm.add_text(3.5,-0.5, "The Pipe")
+pgm.add_text(6.1,-0.5, "The Collider")
+pgm.add_text(8.9,-0.5, "The Descendant")
+pgm.render()
+plt.gca().invert_yaxis(){% endhighlight %}</details>
 
-Có một tin tốt là, với sơ đồ nhân quả DAG, có thể cho ta biết ta bên kiểm soát biến nào để chặn backdoor. Nó cũng cho ta biết không nên chặn biến nào, để tránh tạo ra sai lệch mới. Và tin tốt hơn nữa, chỉ có 4 loại quan hệ của biến để tạo nên mọi loại DAG. Cho nên bạn chỉ cần hiểu 4 thứ và cách thông tin lan truyền với nhau như thế nào. 
-
-![](/assets/images/fig 6-16.png)
 
 1. Loại quan hệ đầu tiên là *phân nhánh (fork)*, $X \gets Z \to Y$, là một loại sai lệch cổ điển. Nếu đặt điều kiện lên $Z$, biến $X$ sẽ không cho thêm thông tin về $Y$. 
 
