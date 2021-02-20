@@ -665,7 +665,7 @@ happiness   0.00   1.21    0.00  -2.00   1.58  338.78   1.00
 {% highlight python %}plt.scatter(d[d['married']==0]['age'], d[d['married']==0]['happiness'], label='chưa kết hôn')
 plt.scatter(d[d['married']==1]['age'], d[d['married']==1]['happiness'], label='đã kết hôn')
 plt.gca().set(xlabel='tuổi', ylabel='hạnh phúc')
-plt.legend(bbox_to_anchor=(1, 1), loc=2)</details>
+plt.legend(bbox_to_anchor=(1, 1), loc=2){% endhighlight %</details>
 
 Kết quả thu được là 1300 mẫu quan sát với tất cả các độ tuổi từ mới sinh đến 65 tuổi. Các biến này tương ứng với các biến trong DAG trên, và mô phỏng này tuân theo DAG.
 
