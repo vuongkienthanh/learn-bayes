@@ -276,6 +276,7 @@ print_summary(post, 0.89, False)
     a   0.01  0.08    0.01  -0.13   0.12   931.50   1.00
    bF   0.86  0.09    0.86   0.73   1.01  1111.41   1.00
 sigma   0.46  0.06    0.46   0.37   0.57   940.36   1.00
+
         mean   std  median   5.5%  94.5%    n_eff  r_hat
     a   0.01  0.07    0.01  -0.10   0.11   931.50   1.00
    bL  -0.90  0.07   -0.90  -1.01  -0.78  1111.89   1.00
@@ -420,7 +421,7 @@ h_{1,i} & \sim \text{Normal}(\mu_i, \sigma) \\
 \mu_i  &= h_{0,i} \times p \\
 \end{aligned}$$
 
-Trong đó $h_{0,i} là chiều cao chiều cây $i$ vào thời điểm $t=0$, $h_{1,i}$ là chiều cao của nó vào thời điểm $t=1$, và $p$ là tham số đo lường tỉ lệ giữa $h_{0,i}$ so với $h_{1,i}$. Cụ thể hơn, $p=h_{1,i}/h_{0,i}$. Nếu $p=1$, tức là câu không hề thay đổi từ lúc $t=0$ đến $t=1$. Nếu $p=2$, tức là chiều cao tăng gấp đôi. Vậy nếu chúng ta đặt prior của $p$ xung quanh $p=1$, nghĩa là mong đợi không có sự thay đổi chiều cao. Nhưng chúng ta cũng nên cho phép $p<1$, trong trường hợp thí nghiệm gặp trục trặc và diệt hết các cây. Chúng ta cũng phải đảm bảo khả năng $p>0$, bởi vì nó là một tỉ lệ. Lúc ở Chương 4, chúng ta đã dùng phân phối Log-Normal, bởi vì nó luôn dương. Hãy dùng nó lần nữa. Nếu chúng ta sử dụng $p \sim \text{Log-Normal}(0,0.25)$, phân phối prior sẽ trông giống như sau:
+Trong đó $h_{0,i}$ là chiều cao chiều cây $i$ vào thời điểm $t=0$, $h_{1,i}$ là chiều cao của nó vào thời điểm $t=1$, và $p$ là tham số đo lường tỉ lệ giữa $h_{0,i}$ so với $h_{1,i}$. Cụ thể hơn, $p=h_{1,i}/h_{0,i}$. Nếu $p=1$, tức là câu không hề thay đổi từ lúc $t=0$ đến $t=1$. Nếu $p=2$, tức là chiều cao tăng gấp đôi. Vậy nếu chúng ta đặt prior của $p$ xung quanh $p=1$, nghĩa là mong đợi không có sự thay đổi chiều cao. Nhưng chúng ta cũng nên cho phép $p<1$, trong trường hợp thí nghiệm gặp trục trặc và diệt hết các cây. Chúng ta cũng phải đảm bảo khả năng $p>0$, bởi vì nó là một tỉ lệ. Lúc ở Chương 4, chúng ta đã dùng phân phối Log-Normal, bởi vì nó luôn dương. Hãy dùng nó lần nữa. Nếu chúng ta sử dụng $p \sim \text{Log-Normal}(0,0.25)$, phân phối prior sẽ trông giống như sau:
 
 <b>code 6.14</b>
 ```python
@@ -908,14 +909,14 @@ May mắn thay, có phương pháp thống kê học để đạt được đi�
 
 Để hiểu tại sao đặt điều kiện trên $U$ chặn con đường $E \gets U \to W$, bạn cần nghĩ con đường này là một mô hình độc lập khác. Khi bạn biết $U$, biết thêm $E$ không cho thông tin gì thêm về $W$. Giả sử $U$ là mức độ giàu có trung bình tại một vùng. Vùng giàu có hơn có nhiều trường tốt hơn, dẫn đến giáo dục $E$ tốt hơn, cũng như công việc có lương $W$ khá hơn. Nếu bạn không biết vùng mà người đó đang sống, biết được giáo dục $E$ của người đó sẽ cho thêm thông tin về mức lương $W$, bởi vì $E$ và $W$ đều tương quan với vùng miền sinh sống. Nhưng sau khi bạn biết được vùng sinh sống của người đó, giả sử không còn đường nào khác giữa $E$ và $W$, thì biết thêm  $E$ sẽ không cho thông tin thêm về $W$. Điều này cũng giống như đặt điều kiện trên $U$ sẽ chặn đường - nó làm cho $E$ và $W$ độc lập, với điều kiện trên $U$.
 
-### 6.4.1. Chặn của sau
+### 6.4.1. Chặn cửa sau
 
 Chặn các con đường gây nhiễu giữa vài biến dự đoán $X$ và biến kết cục $Y$ còn gọi là chặn **CỬA SAU (BACKDOOR)**. Chúng ta không muốn có quan hệ giả tạo nào len lỏi trong những con đường không phải nhân quả mà đi vào sau lưng biến dự đoán $X$. Trong ví dụ trên, con đường $E \gets U \to W$ là backdoor, bởi nó vào $E$ bằng mũi tên và kết nối $E$ với $W$. Con đường này là không mang tính nhân quả - can thiệp trên $E$ sẽ không gây thay đổi $W$ qua con đường này - nhưng nó vẫn tạo tương quan giữa $E$ và $W$.
 
 Có một tin tốt là, với một sơ đồ nhân quả DAG, luôn luôn có thể phát hiện, nếu có bất kỳ, các biến nào phải kiểm soát để chặn các con đường backdoor. Nó cũng có thể phát hiện biến nào mà chúng không được kiểm soát, để tránh tạo ra nhiễu mới. Và - tin tốt hơn nữa - chỉ có bốn loại quan hệ giữa các biến để kết hợp lại tạo thành mọi DAG khả dĩ. Cho nên bạn chỉ cần hiểu bốn món này và cách thông tin lan truyền trong chúng. Tôi sẽ định nghĩa bốn loại quan hệ này. Sau đó sẽ thực hành trên ví dụ.
 
-<a name="f1"></a>![](/assets/images/fig 6-6.svg)
-<details class="fig"><summary>Hình 6.6: Bốn nguyên tố tạo gây nhiễu. Bất kỳ DAG nào cũng được xây dựng trên những quan hệ cơ bản này. Từ trái sang phải: $X \perp\\!\\!\perp Y \|Z$ trong Fork và Pipe, $X \perp\\!\\!\\!\not{}\\!\\!\\!\perp Y \|Z$ trong Collider, và điều kiện trên Descendant D giống như đặt điều kiện trên cha $Z$.</summary>
+<a name="f6"></a>![](/assets/images/fig 6-6.svg)
+<details class="fig"><summary>Hình 6.6: Bốn nguyên tố tạo gây nhiễu. Bất kỳ DAG nào cũng được xây dựng trên những nguyên tố quan hệ này. Từ trái sang phải: $X \perp\!\!\perp Y |Z$ trong Fork và Pipe, $X \perp\!\!\!\not{}\!\!\!\perp Y |Z$ trong Collider, và điều kiện trên Descendant D giống như đặt điều kiện trên cha $Z$.</summary>
 {% highlight python %}dag = CausalGraphicalModel(
     nodes=["X","Y",'Z',"X1","Z1","Y1","X2","Z2","Y2","X3","Z3","Y3","D3"],
     edges=[("Z","X"), ("Z","Y"),("X1","Z1"),("Z1","Y1"),("X2","Z2"),("Y2","Z2"),("X3","Z3"),("Z3","D3"),("Y3","Z3")]
@@ -933,14 +934,15 @@ pgm.add_text(8.9,-0.5, "The Descendant")
 pgm.render()
 plt.gca().invert_yaxis(){% endhighlight %}</details>
 
+[**HÌNH 6.6**](#f6) thể hiện các DAG cho mỗi nguyên tố quan hệ. Tất cả DAG, cho dù lớn và phức tạp cỡ nào, được dựng trên những quan hệ này. Hãy nhìn vào từng loại, từ trái sang phải.
 
-1. Loại quan hệ đầu tiên là *phân nhánh (fork)*, $X \gets Z \to Y$, là một loại sai lệch cổ điển. Nếu đặt điều kiện lên $Z$, biến $X$ sẽ không cho thêm thông tin về $Y$. 
+1. Loại quan hệ đầu tiên là loại mà chúng ta đã làm việc ngay ở trên, **PHÂN NHÁNH (FORK)**: $X \gets Z \to Y$. Nó là một loại nhiễu điển hình. Trong một phân nhánh, vài biến $Z$ là nguồn căn nguyên chung cho $X$ và $Y$, tạo nên tương quan giữa chúng. Nếu chúng ta đặt điều kiện trên $Z$, thì biết thêm biến $X$ sẽ không cho thêm thông tin về biến $Y$. $X$ và $Y$ là độc lập, đặt điều kiện trên $Z$.
 
-2. Loại quan hệ thứ hai là *ống (pipe)*, $X \to Z \to Y$. Tương tụ như *fork*, điều kiện lên $Z$ sẽ chặn con đường này. Bạn gặp quan hệ này ở ví dụ trông cây và nấm.
+2. Loại quan hệ thứ hai là **ỐNG (PIPE)**: $X \to Z \to Y$. Chúng ta đã gặp nó khi thảo luận ví dụ tăng trưởng câu và sai lệch hậu điều trị: Biến điều trị $X$ ảnh hưởng nấm $Z$ sau đó ảnh hưởng $Y$. Nếu chúng ta đặt điều kiện lên $Z$, chúng ta sẽ chặn con đường từ $X$ đến $Y$. Vậy trong cả quan hệ phân nhánh và ống, đặt điều kiện lên biến ở giữa sẽ chặn con đường.
 
-3. Loại quan hệ thứ ba là *xung đột (collider)*, $X \to Z \gets Y$. Ngược lại với hai loại trên, điều kiện lên $Z$ sẽ mở con đường này, như ở ví dụ trên. Khi con đường mở, thông tin sẽ chạy từ $X \to Y$. Nhưng thực tế là, $X$ và $Y$ không có quan hệ nhân quả.
+3. Loại quan hệ thứ ba là **XUNG ĐỘT (COLLIDER)**: $X \to Z \gets Y$. Bạn gặp biến xung đột ở phần trước chương này. Ngược lại với hai loại trên, trong quan hệ xung đột không có quan hệ giữa $X$ và $Y$ trừ phi bạn đặt điều kiện trên $Z$. Đặt điều kiện trên $Z$, biến xung đột, sẽ mở con đường này. Khi con đường được mở, thông tin sẽ truyền từ $X \to Y$. Nhưng thực tế là, $X$ và $Y$ không có quan hệ nhân quả lên nhau.
 
-4. Loại quan hệ thứ tư là *con cháu (descendent)*. Nó là biến bị ảnh hưởng bởi biến khác. Điều kiện lên biến con cháu giống như đặt điều kiện một phần lên cha của nó. Trong hình trên, đặt điều kiện lên $D$ sẽ đặt điều kiện lên $Z$, nhưng ở mức độ nhẹ hơn. Và $Z$ là collider lên mở con đường từ $X \to Y$. Tính chất của biến con cháu sẽ phụ thuộc vào biến cha. Tình huống gặp rất nhiều trên thực tế, vì đôi khi ta không thể đo đạc trực tiếp một hiện tượng nào đó và thông qua dụng cụ gián tiếp.
+4. Loại quan hệ thứ tư là **NỐI DÕI (DESCENDENT)**. Một biến nối dỗi là một biến bị ảnh hưởng bởi biến khác. Đặt điều kiện trên biến nối dỗi giống như đặt điều kiện một phần trên biến cha của nó. Trong hình ngoài cùng bên phải của [**HÌNH 6.6**](#f6), đặt điều kiện trên $D$ cũng sẽ đặt điều kiện lên $Z$, nhưng ở mức độ nhẹ hơn. Lý do là $D$ có vài thông tin của $Z$. Trong ví dụ này, điều này sẽ mở một phần con đường từ $X$ đến $Y$, bởi vì $Z$ là một biến xung đột. Nhưng nói chung hệ quả của việc đặt điều kiện lên biến nối dõi phụ thuộc vào tính chất của biến cha. Biến nối dõi là phổ biến, vì đôi khi chúng ta không thể đo lường trực tiếp một biến số mà phải thông qua công cụ gián tiếp.
 
 Cho dù DAG có phức tạp cỡ nào, nó luôn dựa trên 4 quan hệ kể trên. Và bạn đã biết cách đóng và mở các loại quan hệ, bạn (hoặc máy tính) có thể tìm ra biến nào nên thêm vào hoặc loại ra. Sau đây là công thức:
 
