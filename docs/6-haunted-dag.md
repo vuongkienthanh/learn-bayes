@@ -12,6 +12,8 @@ description: "Chương 6: DAG bị ám và sự kinh hoàng của nhân quả"
 <details class='imp'><summary>import lib cần thiết</summary>
 {% highlight python %}import arviz as az
 import daft
+from pgmpy.models.BayesianModel import BayesianModel
+from pgmpy.inference.CausalInference import CausalInference
 import matplotlib.pyplot as plt
 import pandas as pd
 from causalgraphicalmodels import CausalGraphicalModel
@@ -28,7 +30,7 @@ Có vẻ như những bài báo khoa học thời sự lại là những bài b�
 
 Thật ra điều kiện cần cho tương quan âm này xuất hiện là những người đánh giá báo cáo khoa học (peer reviewer) quan tâm đến cả hai tính chất thời sự (newsworthiness) và tin cậy (trustworthiness). Nếu người đánh giá quan tâm đến hai tính chất trên, thì chính hành động chọn lọc đó làm cho bài báo thời sự nhất thành kém tin cậy nhất. Thực tế, rất khó để tưởng tượng rằng công việc đánh giá bài báo có cách nào tránh được hiện tượng này. Và, các bạn đọc thân mến, sự thật này sẽ giúp chúng ta hiểu những nguy hiểm đang rình rập của hồi quy đa biến.
 
-Đây là một mô phỏng đơn giản để minh hoạ cho điểm này. Giả sử có một hội đồng duyệt bài nhận được 200 bài báo nộp lên. Thì giữa những bài đó, không có tương quan nào giữa tính tin cậy (độ chính xác, sự uyên thâm, khả năng thành công) và tính thời sự (giá trị phúc lợi xã hội, mối quan tâm công chúng). Hội đồng đo lường tính thời sự và tính tin cậy là như nhau. Sau đó họ xép hạng những bài nộp bởi tổng điểm của chúng và chọn ra 10% trên để cho quỹ.
+Đây là một mô phỏng đơn giản để minh hoạ cho điểm này.<sup><a name="r87" href="#87">87</a></sup> Giả sử có một hội đồng duyệt bài nhận được 200 bài báo nộp lên. Thì giữa những bài đó, không có tương quan nào giữa tính tin cậy (độ chính xác, sự uyên thâm, khả năng thành công) và tính thời sự (giá trị phúc lợi xã hội, mối quan tâm công chúng). Hội đồng đo lường tính thời sự và tính tin cậy là như nhau. Sau đó họ xép hạng những bài nộp bởi tổng điểm của chúng và chọn ra 10% trên để cho quỹ.
 
 <a name="f1"></a>![](/assets/images/fig 6-1.svg)
 <details class="fig"><summary>Hình 6.1: Tại sao những bài cáo thời sự lại ít tin cậy nhất. 200 bài báo nộp lên được xếp hàng bằng tổng tính thời sự và tính tương cậy. 10% trên được chọn để cho quỹ. Trong khi không có tương quan trước khi chọn lọc, hai tiêu chuẩn này tương quan âm mạnh sau khi được chọn lọc. Tương quan ở đây là -0.65.</summary>
@@ -48,7 +50,7 @@ ax.annotate('rớt', (0,-2)){% endhighlight %}</details>
 
 Cuối phần này, tôi sẽ đưa code mô phỏng thí nghiệm này. [**HÌNH 6.1**](#f1) thể hiện toàn bộ mẫu các bài báo mô phỏng được nộp lên, và những bài báo được chọn là màu đỏ. Tôi vẽ thêm đường hồi quy tuyến tính đơn giản giữa các bài báo được chọn. Có một tương quan âm, -0.65 trong ví dụ này. Chọn lọc mạnh tạo ra tương quan âm giữa các tiêu chuẩn dùng để chọn lọc. Tại sao? Nếu cách duy nhất để vượt qua ngưỡng này để có nhiều điểm hơn, thì cách thông dụng là đạt điểm cao ở một tiêu chuẩn hơn là cả hai. Cho nên giữa các bài báo được chọn để cho quỹ, thì những bài báo thời sự có thể thực ra có tính tin cậy thấp hơn trung bình (nhỏ hơn 0 trong hình này). Tương tự những bài báo tin cậy cao thì có tính thời sự thấp hơn trung bình.
 
-Hiện tượng này đã được nhận ra từ lâu. Nó đôi khi được gọi là **NGHỊCH LÝ BERKSON (BERKSON'S PARADOX)**. Nhưng sẽ dễ nhớ hơn nếu chúng ta gọi nó là *hiệu ứng chọn lọc-móp méo (selection-distortion effect)*. Một khi bạn quan tâm đến hiệu ứng này, bạn sẽ thấy nó tồn tại ở mọi nơi. Tại sao những nhà hàng ở vị trí tốt lại có thức ăn dở. Một cách tồn tại của nhà hàng với thức ăn không-ngon-lắm là phải ở vị trí tốt. Tương tự, nhà hàng với thức ăn ngon có thể sinh tồn được ở vị trí xấu. Chọn lọc-móp méo đã phá vỡ thành phố của chúng ta.
+Hiện tượng này đã được nhận ra từ lâu. Nó đôi khi được gọi là **NGHỊCH LÝ BERKSON (BERKSON'S PARADOX)**.<sup><a name="r88" href="#88">88</a></sup> Nhưng sẽ dễ nhớ hơn nếu chúng ta gọi nó là *hiệu ứng chọn lọc-móp méo (selection-distortion effect)*. Một khi bạn quan tâm đến hiệu ứng này, bạn sẽ thấy nó tồn tại ở mọi nơi. Tại sao những nhà hàng ở vị trí tốt lại có thức ăn dở. Một cách tồn tại của nhà hàng với thức ăn không-ngon-lắm là phải ở vị trí tốt. Tương tự, nhà hàng với thức ăn ngon có thể sinh tồn được ở vị trí xấu. Chọn lọc-móp méo đã phá vỡ thành phố của chúng ta.
 
 Vậy nó liên quan gì đến hồi quy đa biến (multiple regression)? Thật không may, mọi thứ. Chương trước giới thiệu hồi quy đa biến là một công cụ tuyệt vời để đánh tan mối tương quan giả tạo, cũng như làm rõ tương quan bị ẩn. Điều đó có lẽ củng cố rằng nên thêm tất cả mọi thứ vào mô hình và hãy để vị thánh hồi quy tự giải quyết.
 
@@ -376,7 +378,7 @@ plt.xlabel("correlation"){% endhighlight %}
 
 Thông thường chúng ta quan tâm đến các lỗi sai trong suy luận xuất phát từ việc không đủ biến dự đoán. Những lỗi sai này thường được gọi là **SAI LỆCH THIẾU BIẾN SỐ (OMITTED VARIABLE BIAS)**, và các ví dụ ở chương trước đã minh hoạ nó. Ít được lo lắng hơn trong các lỗi sai suy luận xuất phát từ việc *thêm biến*. Nhưng **SAI LỆCH DƯ BIẾN SỐ (INCLUDED VARIABLE BIAS)** là có thật. Thí nghiệm ngẫu nhiên cẩn thận cỡ nào cũng có thể bị huỷ hoại dẽ dàng như nghiên cứu quan sát không kiểm soát. Thêm biến một cách mù quáng vào salad nhân quả không bao giờ là ý tưởng tốt.
 
-Sai lệch dư biến số có rất nhiều loại. Đầu tiên là **SAI LỆCH HẬU ĐIỀU TRỊ (POST-TREATMENT BIAS)**. Sai lệch hậu điều trị là một nguy cơ có trong mọi loại nghiên cứu. Từ "hậu điều trị" có từ việc thiết kế thí nghiệm. Ví dụ bạn đang trồng cây tại một nhà kính. Bạn muốn biết sự khác nhau về phát triển giữa nhiều loại điều trị phân bón kháng nấm khác nhau trên cây, bởi vì nấm trên cây thường cản trở sự tăng trưởng của cây. Lúc bắt đầu, cây được giao hạt và nảy mầm, thu thập dữ liệu chiều cao ban đầu của cây. Các điều trị phân bón kháng nấm khác nhau được ghi nhận. Số đo cuối cùng là chiều cao của cây và sự hiện diện của nấm. Có bốn biến số được quan tâm: chiều cao ban đầu, chiều cao cuối cùng, điều trị, và hiện diện của nấm.
+Sai lệch dư biến số có rất nhiều loại. Đầu tiên là **SAI LỆCH HẬU ĐIỀU TRỊ (POST-TREATMENT BIAS)**.<sup><a name="r89" href="#89">89</a></sup> Sai lệch hậu điều trị là một nguy cơ có trong mọi loại nghiên cứu. Từ "hậu điều trị" có từ việc thiết kế thí nghiệm. Ví dụ bạn đang trồng cây tại một nhà kính. Bạn muốn biết sự khác nhau về phát triển giữa nhiều loại điều trị phân bón kháng nấm khác nhau trên cây, bởi vì nấm trên cây thường cản trở sự tăng trưởng của cây. Lúc bắt đầu, cây được giao hạt và nảy mầm, thu thập dữ liệu chiều cao ban đầu của cây. Các điều trị phân bón kháng nấm khác nhau được ghi nhận. Số đo cuối cùng là chiều cao của cây và sự hiện diện của nấm. Có bốn biến số được quan tâm: chiều cao ban đầu, chiều cao cuối cùng, điều trị, và hiện diện của nấm.
 
 Chiều cao cuối cùng là kết cục quan tâm. Nhưng biến nào cần được cho vào mô hình? Nếu mục tiêu là suy luận nhân quả về hiệu quả điều trị, bạn không nên bao gồm biến nấm. bởi vì nó là *hiệu ứng hậu điều trị*.
 
@@ -554,26 +556,35 @@ with plt.rc_context({"figure.constrained_layout.use": False}):
 
 Vậy điều trị $T$ ảnh hưởng đến sự hiện diện của nấm $F$, sau đó ảnh hưởng đến chiều cao của cây ở thời điểm 1 là $H_1$. Chiều cao cây ở thời điểm $H_1$ cũng bị ảnh hưởng bởi chiều cao cây ở thời điểm 0, $H_0$. Nó là DAG của chúng ta. Khi chúng ta thêm biến $F$, biến hậu điều trị, vào mô hình, thì chúng ta đã chặn con đường từ $T$ đến biến kết cục. Đây là cách nói theo DAG, là việc biết thêm điều trị không nói gì thêm về kết cục, một khi chúng ta đã biết tình trạng nấm.
 
-Một cách nói theo DAG khác, là việc đặt điều kiện trên biến $F$ đã tạo **SỰ BIỆT HƯỚNG (D-SEPARATION)**. "d" là *chiều hướng (directional)*. Sự biệt hướng nghĩa là có vài biến độc lập với nhau trong đồ thị có hướng. Không có con đường nào kết nối chúng. Trong trường hợp này, $H_1$ là biệt hướng với $T$, nhưng chỉ khi đặt điều kiện trên $F$. Đặt điều kiện trên $F$ đã chặn con đường trực tiếp $T \to F \to H_1$, làm cho $T$ và $H_1$ độc lập (biệt hướng). Trong chương trước, bạn đã thấy kí hiệu $H_1 perp\\!\\!\perp T \|F$ cho mệnh đề này, khi chúng ta thảo luận **MỐI QUAN HỆ ĐỘC LẬP CÓ ĐIỀU KIỆN**. Tại sao nó xảy ra? Không có thông tin của $T$ về $H_1$ mà không có trong $F$. Cho nên khi chúng ta biết $F$, biết thêm $T$ không cung cấp thông tin thêm về $H_1$. Bạn có thể liệt kê tất cả các quan hệ độc lập có điều kiện của DAG này:
+Một cách nói theo DAG khác, là việc đặt điều kiện trên biến $F$ đã tạo **SỰ BIỆT HƯỚNG (D-SEPARATION)**. "d" là *chiều hướng (directional)*.<sup><a name="r90" href="#90">90</a></sup> Sự biệt hướng nghĩa là có vài biến độc lập với nhau trong đồ thị có hướng. Không có con đường nào kết nối chúng. Trong trường hợp này, $H_1$ là biệt hướng với $T$, nhưng chỉ khi đặt điều kiện trên $F$. Đặt điều kiện trên $F$ đã chặn con đường trực tiếp $T \to F \to H_1$, làm cho $T$ và $H_1$ độc lập (biệt hướng). Trong chương trước, bạn đã thấy kí hiệu $H_1 perp\\!\\!\perp T \|F$ cho mệnh đề này, khi chúng ta thảo luận **MỐI QUAN HỆ ĐỘC LẬP CÓ ĐIỀU KIỆN**. Tại sao nó xảy ra? Không có thông tin của $T$ về $H_1$ mà không có trong $F$. Cho nên khi chúng ta biết $F$, biết thêm $T$ không cung cấp thông tin thêm về $H_1$. Bạn có thể liệt kê tất cả các quan hệ độc lập có điều kiện của DAG này:
 
 <b>code 6.19</b>
 ```python
 plant_dag = CausalGraphicalModel(
     nodes=["H0", "H1", "F", "T"], edges=[("H0", "H1"), ("F", "H1"), ("T", "F")]
 )
-plant_dag.get_all_independence_relationships()
+def get_testable_implications(cgm):
+    irs = cgm.get_all_independence_relationships()
+    tis = [irs[0]]
+    curr_ir = tis[0]
+    for i in irs:
+        if (i[0],i[1]) == (curr_ir[0], curr_ir[1]):
+            if len(i[2])<len(curr_ir[2]):
+                tis[-1] = i
+                curr_ir=i
+        else:
+            curr_ir = i
+            tis.append(i)
+    return tis
+get_testable_implications(plant_dag)
 ```
 <samp>[('F', 'H0', set()),
- ('F', 'H0', {'T'}),
  ('H0', 'T', set()),
- ('H0', 'T', {'F'}),
- ('H0', 'T', {'F', 'H1'}),
- ('T', 'H1', {'F'}),
- ('T', 'H1', {'F', 'H0'})]</samp>
+ ('T', 'H1', {'F'})]</samp>
 
-Có 6 quan hệ độc lập ở đây. Ta tập trung vào mối quan hệ thứ 5. Nhưng những mối quan hệ khác cũng cho các cách để kiểm tra sơ đồ nhân quả. Những gì $F perp\\!\\!\perp H_0$ và $H_0 perp\\!\\!\perp T$ nói là chiều cao ban đầu, $H_0$ không liên quan vào điều trị $T$ và hiện diện của nấm $F$, giả định chúng ta không đặt điều kiện trên biến nào cả.
+Có 3 quan hệ độc lập ở đây. Ta tập trung vào mối quan hệ thứ 3. Nhưng những mối quan hệ khác cũng cho các cách để kiểm tra sơ đồ nhân quả. Những gì $F perp\\!\\!\perp H_0$ và $H_0 perp\\!\\!\perp T$ nói là chiều cao ban đầu, $H_0$ không liên quan vào điều trị $T$ và hiện diện của nấm $F$, giả định chúng ta không đặt điều kiện trên biến nào cả.
 
-Điều hiển nhiên là biến hậu điều trị cũng là một vấn đề trong thiết kế nghiên cứu quan sát cũng như nghiên cứu thực nghiệm. Nhưng trong thực nghiệm, có thể dễ dàng nhận biết được biến tiền điều trị, như `h0`, và biến hậu điều trị, như `fungus`. Trong nghiên cứu quan sát thì khó nhận biết chúng hơn. Nhưng có rất nhiều cạm bẫy trong nghiên cứu thực nghiệm. Ví dụ, đặt điều kiện trên biến hậu điều trị có thể không chỉ lừa bạn nghĩa rằng điều trị không hiệu quả. Nó cũng có thể lừa bạn nghĩ rằng nó hoạt động. Xem xét DAG sau đây:
+Điều hiển nhiên là biến hậu điều trị cũng là một vấn đề trong thiết kế nghiên cứu quan sát cũng như nghiên cứu thực nghiệm. Nhưng trong thực nghiệm, có thể dễ dàng nhận biết được biến tiền điều trị, như `h0`, và biến hậu điều trị, như `fungus`. Trong nghiên cứu quan sát thì khó nhận biết chúng hơn. Nhưng có rất nhiều cạm bẫy trong nghiên cứu thực nghiệm.<sup><a name="r91" href="#91">91</a></sup> Ví dụ, đặt điều kiện trên biến hậu điều trị có thể không chỉ lừa bạn nghĩa rằng điều trị không hiệu quả. Nó cũng có thể lừa bạn nghĩ rằng nó hoạt động. Xem xét DAG sau đây:
 
 ![](/assets/images/dag 6-3.svg)
 
@@ -614,7 +625,7 @@ Có 2 mũi tên cho vào $S$ nên nó là một **BIẾN XUNG ĐỘT (COLLIDER)*
 
 ### 6.3.1 Biến xung đột của nỗi buồn giả
 
-Xem xét câu hỏi tuổi tác sẽ ảnh hưởng như thế nào đến hạnh phúc. Nếu chúng ta khảo sát rất nhiều người và đánh giá hạnh phục của họ, thì tuổi tác có liên quan với hạnh phúc không? Nếu có, thì nó có phải liên quan nhân quả không? Ở đây, tôi muốn cho bạn thấy khi kiểm soát một biến có khả năng xung đột cho hạnh phúc có thể gây suy luận sai lệch về ảnh hưởng của tuổi tác như thế nào.
+Xem xét câu hỏi tuổi tác sẽ ảnh hưởng như thế nào đến hạnh phúc. Nếu chúng ta khảo sát rất nhiều người và đánh giá hạnh phục của họ, thì tuổi tác có liên quan với hạnh phúc không? Nếu có, thì nó có phải liên quan nhân quả không? Ở đây, tôi muốn cho bạn thấy khi kiểm soát một biến có khả năng xung đột cho hạnh phúc có thể gây suy luận sai lệch về ảnh hưởng của tuổi tác như thế nào.<sup><a name="r92" href="#92">92</a></sup>
 
 Giả sử, chỉ để giảng dạy, là hạnh phúc trung bình của một người là một đặc tính được quyết định lúc mới sinh ra và không thay đổi theo tuổi. Tuy nhiên, hạnh phúc cũng ảnh hưởng đến nhiều sự kiện trong cuộc sống. Một trong những sự kiện đó là hôn nhân. Người vui vẻ sẽ dễ dàng thành hôn hơn. Một biến khác ảnh hưởng nhân quả đến hôn nhân là tuổi tác. Sống càng lâu thì xác suất kết hôn càng cao. Cho cả ba biến vào chung, và đây là mô hình nhân quả:
 
@@ -756,7 +767,7 @@ Trong ví dụ này này thì nó dễ được nhận ra. Kết hôn có nên �
 
 Sai lệch xung đột xuất phát từ việc đặt điều kiện trên một hệ quả chung, như ví dụ trước. Nếu có thể dựng sơ đồ nhân quả, chúng ta có thể tránh được điều này. Nhưng việc phát hiện một biến xung đột tiềm năng không dễ dàng chút nào, bởi vì còn có nhiều nguồn căn nguyên không đo đạc được. Nguồn căn nguyên không đo đạc được vẫn có thể gây ra sai lệch xung đột. Cho nên tôi xin lỗi và nói rằng chúng ta cũng phải suy nghĩ đến khả năng là DAG của chúng ta đã bị ám.
 
-Giả sử chúng ta muốn suy luận ảnh hưởng của cả cha mẹ ($P$) và ông bà ($G$) lên thành tích giáo dục của con cái ($C$). Bởi vì ông bà được giả định ảnh hưởng đến giáo dục con của họ, có mũi tên từ $G \to P$. Đến đây điều này có vẻ dễ dàng. Nó giống như cấu trúc của ví dụ tỉ suất ly dị từ chương trước:
+Giả sử chúng ta muốn suy luận ảnh hưởng của cả cha mẹ ($P$) và ông bà ($G$) lên thành tích giáo dục của con cái ($C$).<sup><a name="r93" href="#93">93</a></sup> Bởi vì ông bà được giả định ảnh hưởng đến giáo dục con của họ, có mũi tên từ $G \to P$. Đến đây điều này có vẻ dễ dàng. Nó giống như cấu trúc của ví dụ tỉ suất ly dị từ chương trước:
 
 ![](/assets/images/dag 6-6.svg)
 
@@ -884,7 +895,7 @@ sigma   1.08  0.05    1.08   0.99   1.16   797.58   1.00</samp>
 Và những slope này phù hợp với data mà chúng ta mô phỏng.
 
 <div class="alert alert-info">
-<p><strong>Nghịch lý thống kê và giải thích nhân quả.</strong> Ví dụ ông bà là một ví dụ điển hình của <strong>NGHỊCH LÝ SIMPSON</strong>. Việc thêm biến dự đoán mới ($P$ trong ví dụ này) làm đảo dấu tương quan giữa vài biến dự đoán ($G$) với biến kết cục ($C$). Thông thường, nghịc lý Simpson được trình bày dưới dạng thêm biến mới là có ích. Nhưng trong trường hợp này, nó gây chúng ta hiểu sai. Nghịch lý Simpson là một hiện tượng thống kê. Để biết sự đảo dấu tương quan này có phản ánh chính quan hệ nhân quả, chúng ta cần thứ gì đó hơn là chỉ mô hình thống kê.</p></div>
+<p><strong>Nghịch lý thống kê và giải thích nhân quả.</strong> Ví dụ ông bà là một ví dụ điển hình của <strong>NGHỊCH LÝ SIMPSON</strong>. Việc thêm biến dự đoán mới ($P$ trong ví dụ này) làm đảo dấu tương quan giữa vài biến dự đoán ($G$) với biến kết cục ($C$). Thông thường, nghịc lý Simpson được trình bày dưới dạng thêm biến mới là có ích. Nhưng trong trường hợp này, nó gây chúng ta hiểu sai. Nghịch lý Simpson là một hiện tượng thống kê. Để biết sự đảo dấu tương quan này có phản ánh chính quan hệ nhân quả, chúng ta cần thứ gì đó hơn là chỉ mô hình thống kê.<sup><a name="r94" href="#94">94</a></sup></p></div>
 
 ## <center>6.4 Đối phó với nhiễu</center><a name="a4"></a>
 
@@ -892,7 +903,7 @@ Trong chương này và chương trước, có nhiều ví dụ về cách chún
 
 Nhưng nguyên tắc nào giải thích cho việc đôi khi thêm hoặc bỏ các biến có thể tạo ra cùng một hiện tượng? Có những quái vật nhân quả nào khác ở ngoài kia, ám ảnh sơ đồ của chúng ta? Chúng ta cần thêm vài nguyên tắc để gộp các ví dụ này lại.
 
-Hãy định nghĩa **NHIỄU (CONFOUNDING)** là trong bất kỳ bối cảnh mà trong đó quan hệ giữa kết cục $Y$ và biến dự đoán quan tâm $X$ không giống như vón dĩ của nó, nếu chúng ta thí nghiệm quyết định các giá trị của $X$. Ví dụ , giả sử chúng ta quan tâm đến quan hệ giữa đào tạo $E$ và bậc lương $W$. Vấn đề là trong một quần thể điển hình có rất nhiều biến không được quan sát $U$ ảnh hưởng cả $E$ và $W$. Ví dụ bao gồm nơi người đó ở, cha mẹ là ai, và bạn bè họ là ai. DAG sẽ trông giống như vậy:
+Hãy định nghĩa **NHIỄU (CONFOUNDING)** là trong bất kỳ bối cảnh mà trong đó quan hệ giữa kết cục $Y$ và biến dự đoán quan tâm $X$ không giống như vốn dĩ của nó, nếu chúng ta thí nghiệm quyết định các giá trị của $X$.<sup><a name="r95" href="#95">95</a></sup> Ví dụ , giả sử chúng ta quan tâm đến quan hệ giữa đào tạo $E$ và bậc lương $W$. Vấn đề là trong một quần thể điển hình có rất nhiều biến không được quan sát $U$ ảnh hưởng cả $E$ và $W$. Ví dụ bao gồm nơi người đó ở, cha mẹ là ai, và bạn bè họ là ai. DAG sẽ trông giống như vậy:
 
 ![](/assets/images/dag 6-8.svg)
 
@@ -935,99 +946,136 @@ pgm.render()
 plt.gca().invert_yaxis(){% endhighlight %}</details>
 
 [**HÌNH 6.6**](#f6) thể hiện các DAG cho mỗi nguyên tố quan hệ. Tất cả DAG, cho dù lớn và phức tạp cỡ nào, được dựng trên những quan hệ này. Hãy nhìn vào từng loại, từ trái sang phải.
-
 1. Loại quan hệ đầu tiên là loại mà chúng ta đã làm việc ngay ở trên, **PHÂN NHÁNH (FORK)**: $X \gets Z \to Y$. Nó là một loại nhiễu điển hình. Trong một phân nhánh, vài biến $Z$ là nguồn căn nguyên chung cho $X$ và $Y$, tạo nên tương quan giữa chúng. Nếu chúng ta đặt điều kiện trên $Z$, thì biết thêm biến $X$ sẽ không cho thêm thông tin về biến $Y$. $X$ và $Y$ là độc lập, đặt điều kiện trên $Z$.
-
 2. Loại quan hệ thứ hai là **ỐNG (PIPE)**: $X \to Z \to Y$. Chúng ta đã gặp nó khi thảo luận ví dụ tăng trưởng câu và sai lệch hậu điều trị: Biến điều trị $X$ ảnh hưởng nấm $Z$ sau đó ảnh hưởng $Y$. Nếu chúng ta đặt điều kiện lên $Z$, chúng ta sẽ chặn con đường từ $X$ đến $Y$. Vậy trong cả quan hệ phân nhánh và ống, đặt điều kiện lên biến ở giữa sẽ chặn con đường.
-
 3. Loại quan hệ thứ ba là **XUNG ĐỘT (COLLIDER)**: $X \to Z \gets Y$. Bạn gặp biến xung đột ở phần trước chương này. Ngược lại với hai loại trên, trong quan hệ xung đột không có quan hệ giữa $X$ và $Y$ trừ phi bạn đặt điều kiện trên $Z$. Đặt điều kiện trên $Z$, biến xung đột, sẽ mở con đường này. Khi con đường được mở, thông tin sẽ truyền từ $X \to Y$. Nhưng thực tế là, $X$ và $Y$ không có quan hệ nhân quả lên nhau.
-
 4. Loại quan hệ thứ tư là **NỐI DÕI (DESCENDENT)**. Một biến nối dỗi là một biến bị ảnh hưởng bởi biến khác. Đặt điều kiện trên biến nối dỗi giống như đặt điều kiện một phần trên biến cha của nó. Trong hình ngoài cùng bên phải của [**HÌNH 6.6**](#f6), đặt điều kiện trên $D$ cũng sẽ đặt điều kiện lên $Z$, nhưng ở mức độ nhẹ hơn. Lý do là $D$ có vài thông tin của $Z$. Trong ví dụ này, điều này sẽ mở một phần con đường từ $X$ đến $Y$, bởi vì $Z$ là một biến xung đột. Nhưng nói chung hệ quả của việc đặt điều kiện lên biến nối dõi phụ thuộc vào tính chất của biến cha. Biến nối dõi là phổ biến, vì đôi khi chúng ta không thể đo lường trực tiếp một biến số mà phải thông qua công cụ gián tiếp.
 
-Cho dù DAG có phức tạp cỡ nào, nó luôn dựa trên 4 quan hệ kể trên. Và bạn đã biết cách đóng và mở các loại quan hệ, bạn (hoặc máy tính) có thể tìm ra biến nào nên thêm vào hoặc loại ra. Sau đây là công thức:
+Cho dù DAG nhân quả có phức tạp cỡ nào, nó luôn được xây dựng bằng bốn loại quan hệ kể trên. Và vì bạn đã biết cách đóng và mở các loại quan hệ, bạn (hoặc máy tính) có thể tìm ra biến nào nên thêm vào hoặc loại ra. Sau đây là công thức:
 
-1. Liệt kê toàn bộ con đường nối $X$ và $Y$. 
-
-2. Xác định những con đường đó là đóng hay mở. Một con đường là mở trừ phi nó chứa collider.
-
+1. Liệt kê toàn bộ con đường nối $X$ (nguyên nhân tiềm năng được quan tâm) và $Y$ (kết cục). 
+2. Xác định những con đường đó là đóng hay mở. Một con đường là mở trừ phi nó chứa biến xung đột.
 3. Xác định những con đường đó là backdoor hay không. Backdoor sẽ có mũi tên đi vào $X$.
+4. Nếu có con đường backdoor nào đang mở, quyết định biến nào cần đặt điều kiện trên nó để chặn lại (nếu có thể).
 
-4. Nếu có con đường backdoor nào đang mở, ta quyết định đặt điều kiện lên nó để chặn con đường.
-
-Hãy xem các ví dụ sau.
+Hãy xem một số ví dụ.
 
 ### 6.4.2 Hai con đường
 
-DAG dưới đây chứa biến dự đoán là $X$, biến kết cục là $Y$, biến không quan sát được là $U$, 3 biến quan sát được còn lại là $A$, $B$, $C$.
+DAG dưới đây chứa biến phơi nhiễm quan tâm là $X$, biến kết cục là $Y$, biến không quan sát được là $U$, 3 hiệp biến quan sát được còn lại là $A$, $B$, $C$.
 
-![](/assets/images/fig 6-17.png)
+![](/assets/images/dag 6-10.svg)
 
-Ta quan tâm đến con đường $X \to Y$,  và quan hệ nhân quả của nó. Vậy ta chọn biến nào để vào mô hình, để ước lượng đúng quan hệ nhân quả? Có 2 backdoor:
+Chúng ta quan tâm đến con đường $X \to Y$, và hiệu ứng nhân quả của $X$ trên $Y$. Vậy hiệp biến quan sát nào chúng cần thêm vào mô hình, để suy luận đúng? Để tìm ra điều đó, hãy tìm các con đường backdoor. Ngoài con đường trực tiếp ra, còn có 2 backdoor từ $X$ đến $Y$:
 
-1. $X \gets U \gets A \to C to Y$
-
+1. $X \gets U \gets A \to C \to Y$
 2. $X \gets U \to B \gets C \to Y$
 
-Cả hai đều có thể gây sai lệch cho suy luận nhân quả. Bây giờ tìm con đường nào là đang mở. Nếu backdoor đang mở, ta phải đóng nó. Nếu backdoor đang đóng, ta tránh mở nó để tạo ra sai lệch.
+Cả hai đều có thể gây nhiễu cho suy luận nhân quả. Bây giờ tìm con đường nào là đang mở. Nếu backdoor đang mở, chúng ta phải đóng nó. Nếu backdoor đã đóng, chúng ta không được mở nó ra nếu không sẽ tạo ra nhiễu.
 
-Con đường đầu tiên đi qua $A$, đường này đang mở, bởi vì không có collider nào trong đó. Trong đó có một *fork* và hai *pipe*. Thông tin sẽ đi qua con đường này, tạo ra sai lệch nhân quả $X \to Y$. Nó là một backdoor, để đóng backdoor này, ta phải thêm đặt điều kiện lên một biến trên con đường này. Ta không thể đặt điều kiện lên $U$, bởi vì nó là không quan sát được, chỉ còn $A$ và $C$. Cả hai đều có thể chặn backdoor. Bạn có thể dùng phần mềm `daggity` để phân tích DAG này.
+Xem xét con đường đầu tiên đi qua $A$. Đường này đang mở, bởi vì không có biến xung đột nào trong đó. Trong đó có một phân nhánh và hai ống, ở mỗi bên. Thông tin sẽ đi qua con đường này, gây nhiễu $X \to Y$. Nó là một backdoor. Để đóng backdoor này, chúng ta phải đặt điều kiện trên một biến trong những biến trên con đường này. Chúng ta không thể đặt điều kiện trên $U$, bởi vì nó là không quan sát được. Chỉ còn $A$ và $C$. Cả hai đều có thể chặn backdoor. Bạn có thể yêu cầu máy tính tái tạo lại phân tích này, để phân tích sơ đồ và tìm ra những biến cần thiết để kiểm soát để chặn backdoor.
 
-Đặt điều kiện lên $A$ và $C$ đều được, nhưng $C$ sẽ cho kết quả suy luận nhân quả chính xác hơn.
-
-Giờ ta xem con đường thứ hai, backdoor này chứ collider, $U \to B \gets C$. Cho nên nó đã đóng. Thực vậy, nếu bạn đặt điều kiện lên B, nó sẽ mở con đường này, tạo sai lệch. Hiệu ứng nhân quả từ $X \to Y$ sẽ thay đổi, mà nếu bạn không có DAG, bạn sẽ không biết thay đổi này là giúp đỡ hay gây sai lệch. Cho nên, nếu cho thêm một biến vào mô hình hồi quy, mà hệ số hồi quy thay đổi, không có nghĩa là mô hình tốt lên, có thể bạn đã gặp collider. 
-
-### 6.4.3. Backdoor waffles.
-
-Ví dụ cuối cùng với tương quan giữa Waffles House và tỉ lệ ly hôn ở Chương 5. Ta sẽ dựng một DAG, dùng nó để tìm tập tối thiểu các biến số để suy luận nhân quả.
-
-![](/assets/images/fig 6-18.png)
-
-Trong sơ đồ này, $S$ là bang đó có nằm ở phía Nam hay không, $A$ là tuổi kết hôn trung bình, $M$ là tỉ lệ kết hôn, $W$ là số cửa hàng Waffl House, $D$ là tỉ lệ ly dị. Sơ đồ này cho rằng các bang phía Nam sẽ có tuổi kết hôn nhỏ hơn ($S \to A$), tỉ lệ kết hôn cao hơn trực tiếp ($S \to M$) và gián tiếp ($S \to A \to M$), và cũng có nhiều cửa hàng hơn ($S \to W$). Tuổi và tỉ lệ kết hôn ảnh hưởng lên ly dị.
-
-Có 3 backdoor từ $W$ đến $D$. Tất cả đều qua $S$, cho nên ta có thể đóng tất cả backdoor bằng $S$. Có thể xác nhận lại bằng `daggity` [link](http://www.dagitty.net/dags.html).
-
-Model code:
-
+<b>code 6.29</b>
+```python
+dag = CausalGraphicalModel(
+    nodes=list('ABCXYU'),
+    edges=[('A','C'), ('C','B'),('A','U'),('U','B'),('U','X'),('C','Y'),('X','Y')])
+bm = BayesianModel(list(dag.graph.edges))
+ci = CausalInference(bm, latent_vars='U')
+ci.get_all_backdoor_adjustment_sets('X','Y')
 ```
-dag {
-A [pos="-0.890,-0.341"]
-D [outcome,pos="-0.481,-0.334"]
-M [pos="-0.685,-0.498"]
-S [pos="-0.901,-0.652"]
-W [exposure,pos="-0.487,-0.643"]
-A -> D
-A -> M
-M -> D
-S -> A
-S -> M
-S -> W
-W -> D
-}
+<samp>frozenset({frozenset({'A'}), frozenset({'C'})})</samp>
+
+Đặt điều kiện trên $A$ hoặc $C$ đều được. Đặt điều kiện trên $C$ là ý tưởng tốt hơn, từ khía cạnh của hiệu năng, bỏi vì nó cũng sẽ giúp tăng mức độ chính xác của ước lượng $X \to Y$. Nhưng bởi vì bạn code $U$ là biến không quan sát được (`latent_vars`), nó không đề nghị nó trong tập điều chỉnh.
+
+Giờ xem xét con đường thứ hai, đi qua $B$. Con đường này có chứa biến xung đột, $U \to B \gets C$. Cho nên con đường đã được đóng. Nó là lý do tại sao code trên không nói đến $B$. Thực vậy, nếu chúng đặt điều kiện trên $B$, nó sẽ mở con đường này, gây ra nhiễu. Sau đó hiệu ứng nhân quả từ $X \to Y$ sẽ thay đổi, mà nếu không có DAG, chúng ta sẽ không biết sự thay đổi này là giúp đỡ hay gây hiểu sai. Cho nên, nếu cho thêm một biến vào mô hình hồi quy, mà hệ số hồi quy của $X \to Y$ thay đổi, không bao giờ có nghĩa là mô hình tốt lên. Bạn có thể đã đặt điều kiện trên một biến xung đột.
+
+### 6.4.3. Bánh quế backdoor.
+
+Ví dụ cuối cùng, hãy quay về tương quan giữa Waffles House và tỉ suất ly dị ở mở đầu Chương 5. Chúng ta sẽ dựng một DAG, dùng nó để tìm ra tập hiệp biến tối thiểu, và suy ra tập gợi ý kiểm tra được của DAG. Điều này quan trọng, bởi vì đôi khi bạn rất cần kiểm tra xem DAG của bạn có kiên định với bằng chứng hay không. Chỉ mình data là không thể nói cho chúng ta DAG nào là đúng. Nhưng data có thể nói cho chúng ta biết DAG nào là sai.
+
+Chúng ta quan tâm đến hiệu ứng nhân quả toàn phần của số lượng của hàng Waffle Houses lên tỉ suất ly dị ở mỗi bang. Giả định, tương quan ngây thơ của hai biến này là giả tạo. Vậy cái gì là tập điều chỉnh tối thiểu để chặn con đường backdoor từ Waffle House đến ly dị? Hãy tạo một sơ đồ:
+
+![](/assets/images/dag 6-11.svg)
+
+Trong sơ đồ này, $S$ là bang đó có nằm ở phía Nam hay không, $A$ là tuổi kết hôn trung vị, $M$ là tỉ suất kết hôn, $W$ là số cửa hàng Waffle House, $D$ là tỉ suất ly dị. Sơ đồ này cho rằng các bang phía Nam sẽ có tuổi kết hôn nhỏ hơn ($S \to A$), tỉ suất kết hôn cao hơn cả trực tiếp ($S \to M$) và gián tiếp qua tuổi kết hôn ($S \to A \to M$), và cũng có nhiều cửa hàng hơn ($S \to W$). Tuổi kết hôn và tỉ suất kết hôn đều ảnh hưởng lên ly dị.
+
+Có ba backdoor đang mở từ $W$ đến $D$. Chỉ cần đi lùi về, bắt đầu từ $W$ và kết thúc ở $D$. Nhận ra rằng tất cả đều qua $S$. Cho nên chúng ta có thể đóng tất cả backdoor bằng đặt điều kiện trên $S$. Đó là toàn bộ công việc cần làm. Máy tính của bạn có thể xác nhận lại:
+
+<b>code 6.30</b>
+```python
+bm = BayesianModel([('S','W'), ('W','D'),('S','M'),('S','A'),('A','M'),('A','D'),('M','D')])
+ci = CausalInference(bm)
+ci.get_all_backdoor_adjustment_sets('W','D')
 ```
+<samp>frozenset({frozenset({'S'}), frozenset({'A', 'M'})})</samp>
 
-![](/assets/images/fig 6-19.png)
+Vậy chúng ta có thể kiểm soát $A$ và $M$ hoặc chỉ $S$.
 
-Vậy ta có thể kiểm soát $(A, M)$ hoặc chỉ $S$.
+DAG này đương nhiên là không thoả mãn - nó giả định không có nhiễu chưa quan sát, mặc dù với tập data này thì ít xảy ra. Nhưng chúng ta vẫn học được điều gì đó bằng phân tích nó. Trong khi data không thể nói được DAG nào là đúng, nhưng nó đôi khi DAG sai như thế nào. Phần trước, chúng ta thảo luận **MỐI QUAN HỆ ĐỘC LẬP CÓ ĐIỀU KIỆN (CONDITIONAL INDEPENDENCIES)**, hay còn gọi là gợi ý kiểm tra được (testable implication). Chúng là những cặp biến không có quan hệ với nhau, khi được đặt điều kiện trên một tập biến khác. Bằng việc kiểm tra những mối quan hệ độc lập có điều kiện này, chúng ta ít ra kiểm tra được một vài đặc trưng của DAG.
 
-DAG này đương nhiên là không thoả mãn - nó không giả định sai lệch không quan sát được, mặc dù với tập data này thì ít xảy ra. Nhưng ta vẫn học được điều gì đó bằng phân tích. Trong khi data không thể nói được DAG nào là đúng, nhưng nó có thể nói được DAG nào là sai. Phần trước, ta thảo luận mối quan hệ độc lập có điều kiện (conditional independency), hay còn gọi là suy luận kiểm tra được (testable implication). Chúng là những cặp biến không quan hệ với nhau, khi được đặt điều kiện lên tập hợp biến khác. Bằng xem xét những mối quan hệ độc lập có điều kiện này, ta ít ra kiểm tra được những đặc trưng của DAG.
+Giờ bạn biết được những nguyên tố gây nhiễu, bạn có thể tự diễn giải kết quả quan hệ độc lập có điều kiện của bất kỳ DAG nào. Bạn có thể tìm mối quan hệ độc lập có điều kiện bằng logic đường đi bạn đã học để đóng backdoor. Bạn chỉ cần tập trung vào một cặp biến, tìm tất cả con đường kết nối chúng, và tìm ra có tập biến nào cần phải đặt điều kiện trên chúng để đóng các backdoor. Trong một sơ đồ lớn, đây là một công việc mất thời gian, bởi vì có nhiều cặp biến và có rất nhiều con đường. Nhưng máy tính của bạn rất giỏi cho công việc này. Trong trường hợp này, có ba cặp quan hệ độc lập có điều kiện:
 
-Giờ bạn biết được những sai lệch cơ bản, bạn có thể tự diễn giải kết quả quan hệ độc lập có điều kiện. Trong ví dụ này có 3 cặp quan hệ độc lập có điều kiện (hình trên).
+<b>code 6.31</b>
+```python
+dag = CausalGraphicalModel(
+    nodes=list('SWDAM'),
+    edges=[('S','W'), ('W','D'),('S','M'),('S','A'),('A','M'),('A','D'),('M','D')])
+get_testable_implications(dag)
+```
+<samp>[('W', 'A', {'S'}), ('D', 'S', {'A', 'M', 'W'}),('W', 'M', {'S'})]</samp>
 
-Dòng đầu tiên là "tuổi trung bình kết hôn thì độc lập với số lượng cửa hàng Waffle House, điều kiện là bang đó ở phía Nam." Dòng thứ hai, ly dị và phía Nam độc lập với nhau nếu đồng thời đặt điều kiện lên tuổi trung bình kết hôn, tỉ lệ kết hôn và số lượng cửa hàng. Cuối cùng, tỉ lệ kết hôn và số lượng cửa hàng là độc lập, khi điều kiện là ở phía Nam.
+Dòng đầu tiên là "tuổi kết hôn trung vị thì độc lập với số lượng cửa hàng Waffle House, điều kiện là bang đó ở phía Nam." Dòng thứ hai, ly dị và phía Nam độc lập với nhau nếu đồng thời đặt điều kiện lên tuổi kết hôn trung vị, tỉ suất kết hôn và số lượng cửa hàng. Cuối cùng, tỉ suất kết hôn và số lượng cửa hàng là độc lập, khi điều kiện là ở phía Nam.
 
-Bạn sẽ phải dựng mô hình cho từng mối quan hệ trên, và kiểm tra tính phù hợp của nó. Nếu có sai, bạn phải chỉnh sửa lại DAG, thêm hoặc xoá các mũi tên, giới thiệu biến mới,..
+Trong phần thực hành cuối chương, tôi sẽ yêu cầu bạn đánh giá từng mối quan hệ trên, và kiểm tra ảnh hưởng nhân quả của Waffle House lên ly dị.
 
->**DAG thôi vẫn không đủ.** Nếu bạn không có mô hình thực của hệ thống, DAG rất tuyệt vời. Nó làm cho giả định rõ ràng, và dễ dàng để đánh giá. Và nếu có gì khác, nó chỉ rõ mối nguy hiểm tiềm tàng khi dùng hồi quy tuyến tính thay vì cho giả thuyết. Nhưng DAG không phải đích đến cuối cùng. Khi bạn biết được mô hình động của hệ thống, bạn không cần DAG. Thực vậy, rất nhiều mô hình động có hành vi phức tạp, nhạy cảm với những giả định ban đầu, không thể trình bày bằng DAG đơn thuần. Nhưng mô hình vẫn có thể được phân tích và can thiệp nhân quả. Thực vậy, mô hình nhân quả theo cấu trúc chuyên ngành có thể suy luận nhân quả hiệu quả hơn so với DAG cùng cấu trúc. Càng nhiều giả định chính xác, suy luận càng mạnh hơn, power cao hơn.  
->Sự thật DAG không được dùng cho mọi thứ là khỏi tranh cãi. Mọi công cụ giả thuyết đều có giới hạn. Nhưng DAG là một công cụ tốt để trình bày suy luận nhân quả cho người mới học.
+<div class="alert alert-info">
+<p><strong>DAG thôi vẫn không đủ.</strong> Nếu bạn không có mô hình thực của hệ thống, DAG là công cụ tuyệt vời. Nó làm cho giả định minh bạch, và dễ dàng để đánh giá. Và nếu có gì khác, nó chỉ rõ mối nguy hiểm tiềm tàng khi dùng hồi quy đa biến thay vì cho giả thuyết. Nhưng DAG không phải đích đến cuối cùng. Khi bạn biết được mô hình động của hệ thống, bạn không cần DAG. Thực vậy, rất nhiều mô hình động có hành vi phức tạp, nhạy cảm với những tình trạng ban đầu, không thể trình bày bằng DAG đơn thuần.<sup><a name="r96" href="#96">96</a></sup> Nhưng những mô hình này vẫn có thể được phân tích và can thiệp nhân quả theo thiết kế của chúng. Thực vậy, mô hình nhân quả có cấu trúc theo chuyên ngành có khả năng thực hiện suy luận nhân quả mà khi DAG cùng cấu trúc không thể quyết định đi tiếp như thế nào. Càng nhiều giả định chính xác, suy luận càng mạnh hơn.</p>
+<p>Sự thật DAG không được dùng cho mọi thứ là khỏi tranh cãi. Mọi công cụ giả thuyết đều có giới hạn. Nhưng tôi vẫn chưa thấy công cụ nào tốt hơn DAG để giảng dạy nền tảng và các chướng ngại vật của suy luận nhân quả. Một công cụ tổng quát như DAG đã thêm giá trị trừu tường hoá các chi tiết cụ thể và dạy chúng ta những nguyên tắc chung. Ví dụ, DAG làm rõ tại sao thí nghiệm hoạt động tốt và đánh dấu các nguy cơ của thí nghiệm như sai số đo lường (Chương 15).</p></div>
+
+<div class="alert alert-dark">
+<p><strong>Toán tử làm mượt.</strong> Để định nghĩa nhiễu với kí hiệu chính xác, chúng ta cần dùng một thứ gọi là <strong>TOÁN TỬ DO (DO-OPERATOR)</strong>.<sup><a name="r97" href="#97">97</a></sup> Nhiễu xảy ra khi:</p>
+$$ \Pr(Y|X) = \Pr(Y|do(X))$$
+<p>Dấu $do(X)$ nghĩa là chặn tất cả các backdoor đến $X$, giống như chúng ta đã thực hiện thí nghiệm. Toán tử $do$ thay đổi sơ đồ nhân quả, đóng các backdoor. Toán tử $do$ định nghĩa mối quan hệ nhân quả, bởi vì $\Pr(Y\|do(X))$ cho chúng ta biết kết quả mong đợi khi kiểm soát $X$ trên $Y$, dưới giả định của sơ đồ nhân quả. Chúng ta có thể nói rằng vài biến $X$ là nguyên nhân của $Y$ khi $\Pr(Y\|do(X))\neq \Pr(Y\|do(\text{not-}X))$. Sự so sánh xác suất có điều kiện thông thường, $\Pr(Y\|X) \neq \Pr(Y\|\text{not-}X)$, là khác. Nó không có đóng các backdoor. Chú ý rằng toán tử $do$ cho bạn không chỉ có hiệu ứng nhân quả trực tiếp. Nó là <i>toàn bộ</i> hiệu ứng nhân quả từ các con đường tịnh tiến ra trước. Để có được hiệu ứng trực tiếp, bạn có thể cần chặn nhiều backdoor hơn. Toán tử $do$ có thể được dùng để đưa ra các chiến thuật suy luận nhân quả ngay cả khi có vài backdoor không đóng được. Chúng ta sẽ gặp một ví dụ ở chương sau.</p></div>
+
+## <center>6.5 Tổng kết</center><a name="a5"></a>
+
+Hồi quy đa biến không phải thánh, nhưng chỉ là một con golem. Nó hoạt động theo logic, nhưng các mối quan hệ nó mô tả là những tương quan có điều kiện, không phải ảnh hưởng nhân quả. Cho nên thông tin thêm, từ bên ngoài mô hình, là cần thiết để hiểu nó. Chương này trình bày các ví dụ giới thiệu về một vài rắc rối thường gặp: đa cộng tuyến, sai lệch hậu điều trị và sai lệch xung đột. Giải pháp cho những rắc rối này có thể được sắp xếp dưới một khung quy trình trong đó các giả thuyết quan hệ nhân quả giữa các biến được phân tích để đối phó với nhiễu. Trong tất cả các trường hợp, mô hình nhân quả tồn tại bên ngoài mô hình thống kê và có thể khó kiểm tra. Tuy nhiên, vẫn có thể đạt được suy luận nhân quả đúng trong tình huống không có thực nghiệm. Đây là tin tốt, bởi vì chúng ta thường không thực hiện thí nghiệm, bởi vì lý do thực hành và đạo đức.
 
 ---
 
-Phép tính `do`. Để định nghĩa chính xác sai lệch, ta cần phép dùng ký hiệu. Sai lệch xảy ra khi:
+<details><summary>Endnotes</summary>
+<ol class="endnotes">
+<li><a name="87" href="#r87">87. </a>This example is joint work with Paul Smaldino. I think we sketched it on a napkin at a conference in Jena, Germany in 2017.</li>
+<li><a name="88" href="#r88">88. </a>See Berkson (1946) A related phenomenon is range restriction that results from selection, which reduces the correlation between criteria and subsequent performance. This is one reason that standardized test scores do not correlate with success in school. They might also just not predict success at all. But even if they did, it’s not surprising that they are uncorrelated with success after selection. See Dawes (1975).</li>
+<li><a name="89" href="#r89">89. </a>Rosenbaum (1984) calls it concomitant variable bias. See also Chapter 9 in Gelman and Hill (2007). There isn’t really any standard terminology for this issue. It is a component of generalized mediation analysis, and some fields discuss it under that banner.</li>
+<li><a name="90" href="#r90">90. </a>See Pearl (2016), chapter 2. You’ll often see the “d” in d-separation defined as “dependency.” That would certainly make more sense. But the term d-separation comes from a more general theory of graphs. Directed graphs involve d-separation and undirected graphs involve instead u-separation. Anyway, if you want to call it “dependency separation,” I won’t mind.</li>
+<li><a name="91" href="#r91">91. </a>Montgomery et al. (2018) found that almost half of experimental studies in three top Political Science journals conditioned on post-treatment variables, despite the fact that most political science programs warn against this. The paper contains a number of examples to help you think through post-treatment conditioning.</li>
+<li><a name="92" href="#r92">92. </a>I learned this example from Dr. Julia Rohrer. See her 2017 blog post http://www.the100.ci/2017/04/21/whatsan-age-effect-net-of-all-time-varying-covariates/ as well as the papers Rohrer (2017) and Glenn (2009).</li>
+<li><a name="93" href="#r93">93. </a>This example is from Breen (2018).</li>
+<li><a name="94" href="#r94">94. </a>See Pearl (2014).</li>
+<li><a name="95" href="#r95">95. </a>This definition is actually a little too narrow. Experimental manipulation is not required, just blocking of non-causal paths.</li>
+<li><a name="96" href="#r96">96. </a>See Blom et al. (2018).</li>
+<li><a name="97" href="#r97">97. </a>See Pearl (2000), as well as Pearl and MacKenzie (2018).</li>
+</ol>
+</details>
 
-$ Pr ( Y \|X) = Pr (Y \| do(X) ) $
-
-Dấu $do(X)$ nghĩa là chặn tất cả các backdoor đến $X$, nhưng ta đã thí nghiệm. Phép tính `do` thay đổi sơ đồ nhân quả, chặn các backdoor. Nó định nghĩa mối quan hệ nhân quả, bởi vì $Pr(Y \| do(X))$ cho ta biết kết quả $Y$ khi kiểm soát $X$, với một DAG. Ta có thể nói rằng $X$ là nguyên nhân của $Y$ khi  $Pr(Y \| do(X)) \neq Pr(Y \| do(not-X))$. Còn $Pr(Y \| X) \neq Pr(Y \| not-X)$ không có chặn các backdoor. Chú ý rằng `do` không cho hiệu ứng nhân quả trực tiếp, mà là toàn bộ hiệu ứng. Để rút hiệu ứng trực tiếp, ta cần chặn nhiều backdoor hơn. `do` giúp ta tạo ra nhiều kỹ thuật suy luận nhân quả, ngay cả khi có backdoor không dóng được. Ta sẽ gặp lại nó ở chương sau.
-
----
-
-*Chapter end*
+<details class="practice"><summary>Bài tập</summary>
+<p>Problems are labeled Easy (E), Medium (M), and Hard (H).</p>
+<p><strong>6E1.</strong> List three mechanisms by which multiple regression can produce false inferences about causal effects.</p>
+<p><strong>6E2.</strong> For one of the mechanisms in the previous problem, provide an example of your choice, perhaps from your own research.</p>
+<p><strong>6E3.</strong> List the four elemental confounds. Can you explain the conditional dependencies of each? 6E4. How is a biased sample like conditioning on a collider? Think of the example at the open of the chapter.</p>
+<p><strong>6M1.</strong> Modify the DAG on 6.4.2 to include the variable $V$, an unobserved cause of $C$ and $Y$: $C \gets V \to Y$. Reanalyze the DAG. How many paths connect $X$ to $Y$? Which must be closed? Which variables should you condition on now?</p>
+<p><strong>6M2.</strong> Sometimes, in order to avoid multicollinearity, people inspect pairwise correlations among predictors before including them in a model. This is a bad procedure, because what matters is the conditional association, not the association before the variables are included in the model. To highlight this, consider the DAG $X \to Z \to Y$. Simulate data from this DAG so that the correlation between $X$ and $Z$ is very large. Then include both in a model prediction $Y$. Do you observe any multicollinearity? Why or why not? What is different from the legs example in the chapter?</p>
+<p><strong>6M3.</strong> Learning to analyze DAGs requires practice. For each of the four DAGs below, state which variables, if any, you must adjust for (condition on) to estimate the total causal influence of $X$ on $Y$.</p>
+<img src="./assets/images/dag 6-12.svg">
+<p><strong>6H1.</strong> Use the Waffle House data, to find the total causal influence of number of Waffle Houses on divorce rate. Justify your model or models with a causal graph.</p>
+<p><strong>6H2.</strong> Build a series of models to test the implied conditional independencies of the causal graph you used in the previous problem. If any of the tests fail, how do you think the graph needs to be amended? Does the graph need more or fewer arrows? Feel free to nominate variables that aren’t in the data.</p>
+<p>All three problems below are based on the same data. The data in <a href="https://github.com/rmcelreath/rethinking/blob/master/data/foxes.csv">this</a> are 116 foxes from 30 different urban groups in England. These foxes are like street gangs. Group size varies from 2 to 8 individuals. Each group maintains its own urban territory. Some territories are larger than others. The area variable encodes this information. Some territories also have more avgfood than others. We want to model the <code>weight</code> of each fox. For the problems below, assume the following DAG:</p>
+<img src="./assets/images/dag 6-13.svg">
+<p><strong>6H3.</strong> Use a model to infer the total causal influence of <code>area</code> on <code>weight</code>. Would increasing the area available to each fox make it heavier (healthier)? You might want to standardize the variables. Regardless, use prior predictive simulation to show that your model’s prior predictions stay within the possible outcome range.</p>
+<p><strong>6H4.</strong> Now infer the causal impact of adding food to a territory. Would this make foxes heavier? Which covariates do you need to adjust for to estimate the total causal influence of food?</p>
+<p><strong>6H5.</strong> Now infer the causal impact of group size. Which covariates do you need to adjust for? Looking at the posterior distribution of the resulting model, what do you think explains these data? That is, can you explain the estimates for all three problems? How do they go together?</p>
+<p><strong>6H6.</strong> Consider your own research question. Draw a DAG to represent it. What are the testable implications of your DAG? Are there any variables you could condition on to close all backdoor paths? Are there unobserved variables that you have omitted? Would a reasonable colleague imagine additional threats to causal inference that you have ignored?</p>
+<p><strong>6H7.</strong> For the DAG you made in the previous problem, can you write a data generating simulation for it? Can you design one or more statistical models to produce causal estimates? If so, try to calculate interesting counterfactuals. If not, use the simulation to estimate the size of the bias you might expect. Under what conditions would you, for example, infer the opposite of a true causal effect?</p>
+</details>
