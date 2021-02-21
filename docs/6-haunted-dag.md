@@ -927,7 +927,7 @@ Chặn các con đường gây nhiễu giữa vài biến dự đoán $X$ và bi
 Có một tin tốt là, với một sơ đồ nhân quả DAG, luôn luôn có thể phát hiện, nếu có bất kỳ, các biến nào phải kiểm soát để chặn các con đường backdoor. Nó cũng có thể phát hiện biến nào mà chúng không được kiểm soát, để tránh tạo ra nhiễu mới. Và - tin tốt hơn nữa - chỉ có bốn loại quan hệ giữa các biến để kết hợp lại tạo thành mọi DAG khả dĩ. Cho nên bạn chỉ cần hiểu bốn món này và cách thông tin lan truyền trong chúng. Tôi sẽ định nghĩa bốn loại quan hệ này. Sau đó sẽ thực hành trên ví dụ.
 
 <a name="f6"></a>![](/assets/images/fig 6-6.svg)
-<details class="fig"><summary>Hình 6.6: Bốn nguyên tố tạo gây nhiễu. Bất kỳ DAG nào cũng được xây dựng trên những nguyên tố quan hệ này. Từ trái sang phải: $X \perp\!\!\perp Y |Z$ trong Fork và Pipe, $X \perp\!\!\!\not{}\!\!\!\perp Y |Z$ trong Collider, và điều kiện trên Descendant D giống như đặt điều kiện trên cha $Z$.</summary>
+<details class="fig"><summary>Hình 6.6: Bốn nguyên tố tạo gây nhiễu. Bất kỳ DAG nào cũng được xây dựng trên những nguyên tố quan hệ này. Từ trái sang phải: $X \perp\!\perp Y |Z$ trong Fork và Pipe, $X \perp\!\!\not{}\!\!\perp Y |Z$ trong Collider, và điều kiện trên Descendant D giống như đặt điều kiện trên cha $Z$.</summary>
 {% highlight python %}dag = CausalGraphicalModel(
     nodes=["X","Y",'Z',"X1","Z1","Y1","X2","Z2","Y2","X3","Z3","Y3","D3"],
     edges=[("Z","X"), ("Z","Y"),("X1","Z1"),("Z1","Y1"),("X2","Z2"),("Y2","Z2"),("X3","Z3"),("Z3","D3"),("Y3","Z3")]
@@ -1023,7 +1023,9 @@ dag = CausalGraphicalModel(
     edges=[('S','W'), ('W','D'),('S','M'),('S','A'),('A','M'),('A','D'),('M','D')])
 get_testable_implications(dag)
 ```
-<samp>[('W', 'A', {'S'}), ('D', 'S', {'A', 'M', 'W'}),('W', 'M', {'S'})]</samp>
+<samp>[('W', 'A', {'S'}),
+ ('D', 'S', {'A', 'M', 'W'}),
+ ('W', 'M', {'S'})]</samp>
 
 Dòng đầu tiên là "tuổi kết hôn trung vị thì độc lập với số lượng cửa hàng Waffle House, điều kiện là bang đó ở phía Nam." Dòng thứ hai, ly dị và phía Nam độc lập với nhau nếu đồng thời đặt điều kiện lên tuổi kết hôn trung vị, tỉ suất kết hôn và số lượng cửa hàng. Cuối cùng, tỉ suất kết hôn và số lượng cửa hàng là độc lập, khi điều kiện là ở phía Nam.
 
@@ -1036,7 +1038,7 @@ Trong phần thực hành cuối chương, tôi sẽ yêu cầu bạn đánh gi�
 <div class="alert alert-dark">
 <p><strong>Toán tử làm mượt.</strong> Để định nghĩa nhiễu với kí hiệu chính xác, chúng ta cần dùng một thứ gọi là <strong>TOÁN TỬ DO (DO-OPERATOR)</strong>.<sup><a name="r97" href="#97">97</a></sup> Nhiễu xảy ra khi:</p>
 $$ \Pr(Y|X) = \Pr(Y|do(X))$$
-<p>Dấu $do(X)$ nghĩa là chặn tất cả các backdoor đến $X$, giống như chúng ta đã thực hiện thí nghiệm. Toán tử $do$ thay đổi sơ đồ nhân quả, đóng các backdoor. Toán tử $do$ định nghĩa mối quan hệ nhân quả, bởi vì $\Pr(Y\|do(X))$ cho chúng ta biết kết quả mong đợi khi kiểm soát $X$ trên $Y$, dưới giả định của sơ đồ nhân quả. Chúng ta có thể nói rằng vài biến $X$ là nguyên nhân của $Y$ khi $\Pr(Y\|do(X))\neq \Pr(Y\|do(\text{not-}X))$. Sự so sánh xác suất có điều kiện thông thường, $\Pr(Y\|X) \neq \Pr(Y\|\text{not-}X)$, là khác. Nó không có đóng các backdoor. Chú ý rằng toán tử $do$ cho bạn không chỉ có hiệu ứng nhân quả trực tiếp. Nó là <i>toàn bộ</i> hiệu ứng nhân quả từ các con đường tịnh tiến ra trước. Để có được hiệu ứng trực tiếp, bạn có thể cần chặn nhiều backdoor hơn. Toán tử $do$ có thể được dùng để đưa ra các chiến thuật suy luận nhân quả ngay cả khi có vài backdoor không đóng được. Chúng ta sẽ gặp một ví dụ ở chương sau.</p></div>
+<p>Dấu $do(X)$ nghĩa là chặn tất cả các backdoor đến $X$, giống như chúng ta đã thực hiện thí nghiệm. Toán tử $do$ thay đổi sơ đồ nhân quả, đóng các backdoor. Toán tử $do$ định nghĩa mối quan hệ nhân quả, bởi vì $\Pr(Y|do(X))$ cho chúng ta biết kết quả mong đợi khi kiểm soát $X$ trên $Y$, dưới giả định của sơ đồ nhân quả. Chúng ta có thể nói rằng vài biến $X$ là nguyên nhân của $Y$ khi $\Pr(Y|do(X))\neq \Pr(Y|do(\text{not-}X))$. Sự so sánh xác suất có điều kiện thông thường, $\Pr(Y|X) \neq \Pr(Y|\text{not-}X)$, là khác. Nó không có đóng các backdoor. Chú ý rằng toán tử $do$ cho bạn không chỉ có hiệu ứng nhân quả trực tiếp. Nó là <i>toàn bộ</i> hiệu ứng nhân quả từ các con đường tịnh tiến ra trước. Để có được hiệu ứng trực tiếp, bạn có thể cần chặn nhiều backdoor hơn. Toán tử $do$ có thể được dùng để đưa ra các chiến thuật suy luận nhân quả ngay cả khi có vài backdoor không đóng được. Chúng ta sẽ gặp một ví dụ ở chương sau.</p></div>
 
 ## <center>6.5 Tổng kết</center><a name="a5"></a>
 
