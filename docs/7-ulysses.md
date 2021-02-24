@@ -1137,7 +1137,7 @@ Với những định nghĩa về cross-validation, PSIS, và WAIC, ta hãy làm
 
 <a name="f9"></a>![](/assets/images/fig 7-9.svg)
 <details class="fig"><summary>Hình 7.9: WAIC và cross-validation đều là ước lượng của deviance ngoài mẫu. Hàng trên cho 100 mô phỏng huấn luyện-kiểm tra với $N=20$. Hàng dưới cho 100 mô phỏng với $N=100$. Ở mỗi biểu đồ có hai xu thế. Những điểm màu trắng là prior không được regularize. Những điểm màu xanh là prior được regularize $\sigma=0.5$. Bên trái: Trục tung là deviance tuyệt đối. Những điểm tròn là trung bình của deviance kiểm tra. Đường đen là ước lượng WAIC trung bình. Màu xanh là điểm leave-one-out cross-validation, và đường xanh nét đứt là ước lượng PSIS của điểm cross-validation. Bên phải: cùng một data, nhưng được tính theo sai số trung bình của ước lượng của deviance kiểm tra. </summary>
-{% highlight python %}</code>def compare_CV_PSIS_WAIC(N, k, b_sigma, i):
+{% highlight python %}def compare_CV_PSIS_WAIC(N, k, b_sigma, i):
     # create sample
     x_train, y_train = sim_train_test(N, k, i, rng_key=0)
     x_test, y_test = sim_train_test(N, k, i, rng_key=1)
@@ -1219,7 +1219,7 @@ for idx, N in  in enumerate([20,100]):
     ax[idx, 1].plot(kseq, comp2[7], c='k')
     ax[idx, 1].set_title(f"N={N}")
     ax[idx, 1].annotate("sigma=0.5", (5, comp2[7,4]))
-plt.tight_layout()</pre></details>
+plt.tight_layout(){% endhighlight %}</details>
 
 [**HÌNH 7.9**](#f9) cho kết quả của 100 mô phỏng cho mỗi mô hình trong năm mô hình quen thuộc giữa 1 và 5 tham số, được mô phỏng dưới hai tập prior khác nhau và hai cỡ mẫu khác nhau. Hình này phức tạp, những hãy xem từng mảnh một, chúng ta đều đã quen thuộc với chúng. Hãy tập trung vào chỉ hình trên bên trái, với $N=20$. Trục tung là deviance ngoài mẫu ($-2 \times \text{lppd}$). Những điểm trắng là deviance trung bình ngoài mẫu với mô hình có prior phẳng. Những điểm xanh là deviance trung bình ngoài mẫu có prior được regularize với độ lệch chuẩn 0.5. Chú ý rằng prior được regularize thì bị ít overfit hơn, cũng giống như những gì bạn thấy ở phần trước. Không có gì mới.
 
