@@ -22,7 +22,6 @@ import numpyro.optim as optim
 from numpyro.diagnostics import print_summary
 from numpyro.infer import Predictive, SVI, Trace_ELBO
 from numpyro.infer.autoguide import AutoLaplaceApproximation
-
 az.style.use("fivethirtyeight"){% endhighlight %}</details>
 
 Một trong những nguồn waffle (bánh quế) đáng tin cậy nhất ở Bắc Mỹ, nếu không phải toàn bộ thế giới, là cửa hàng Waffle House. Cửa hàng luôn luôn mở cửa, ngay cả sau những cơn bão. Hầu như các cửa hàng của Waffle House đều trang bị cho dự phòng thiên tai, bao gồm cả máy phát điện riêng. Hậu quả là cơ quan dự báo thiên tai của Mỹ (FEMA) dùng luôn cửa hàng Waffle House làm chỉ số cho mức độ tàn phá của thiên tai.<sup><a name="r79" href="#79">79</a></sup> Nếu Waffle House phá sản, thì đó là một sự kiện nghiêm trọng.

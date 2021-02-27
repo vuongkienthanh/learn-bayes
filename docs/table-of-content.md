@@ -10,6 +10,6 @@ description: "Mục lục"
 [Chương 5: Các biến số & Xử sở Waffles giả tạo](./5-many-var)  
 [Chương 6: DAG bị ám và sự kinh hoàng của nhân quả](./6-haunted-dag)  
 [Chương 7: La bàn của Ulysses](./7-ulysses)  
-
+[Chương 8: Những con lợn biển có điều kiện](./8-conditonal)  
 
 (còn tiếp)

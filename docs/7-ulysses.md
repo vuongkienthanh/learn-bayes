@@ -1483,7 +1483,7 @@ jnp.sqrt(n * jnp.var(diff_m6_7_m6_8))
 compare = az.compare(
     {"m6_6": az6_6, "m6_7": az6_7, "m6_8": az6_8}, ic="waic", scale="deviance"
 )
-az.plot_compare(compare)
+az.plot_compare(compare, plot_kwargs={'color_ic':'C0'})
 ```
 
 ![](/assets/images/compare 7-1.svg)
