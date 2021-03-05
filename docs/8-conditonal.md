@@ -287,7 +287,7 @@ Trong đó $A-i$ là `cont_affrica`, một biến chỉ điểm 0/1. Nhưng đ�
 
 $$\mu_i = \alpha_{\Tiny CID[i]} + \beta(r_i - \bar{i}) $$
 
-trong đó $CID$ là biến chỉ số, ID của lục địa. Nó nhận giá trị 0 cho quốc gia ở Châu Phi và 1 cho quốc gia khác. Điều này có nghĩa có 2 tham số, $\apha_1$ à $\alpha_2$, mỗi một cho từng giá trị chỉ số độc nhất. Ký hiệu $CID[i]$ nghĩa là giá trị $CID$ ở hàng $i$. Tôi dùng ký hiệu ngoặc vuông cho biến chỉ số, bởi vì nó dễ hơn để đọc hơn thêm một dòng nằm dưới, $\alpha_{{CID}_i}$. Chúng ta có thể xây dựng biến chỉ số này như sau:
+trong đó $CID$ là biến chỉ số, ID của lục địa. Nó nhận giá trị 0 cho quốc gia ở Châu Phi và 1 cho quốc gia khác. Điều này có nghĩa có 2 tham số, $\apha_1$ à $\alpha_2$, mỗi một cho từng giá trị chỉ số độc nhất. Ký hiệu $CID[i]$ nghĩa là giá trị $CID$ ở hàng $i$. Tôi dùng ký hiệu ngoặc vuông cho biến chỉ số, bởi vì nó dễ hơn để đọc hơn thêm một dòng nằm dưới, $\alpha_{CID_i}$. Chúng ta có thể xây dựng biến chỉ số này như sau:
 
 <b>code 8.7</b>
 ```python
