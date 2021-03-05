@@ -11,7 +11,7 @@ description: "vn"
 - [](#a5)
 
 <details class='imp'><summary>import lib cần thiết</summary>
-{% highlight python %}{% endhighlight %}
+{% highlight python %}{% endhighlight %}</details>
 
 
 ## <center></center><a name="a1"></a>
