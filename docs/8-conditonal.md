@@ -287,7 +287,7 @@ Trong đó $A-i$ là `cont_affrica`, một biến chỉ điểm 0/1. Nhưng đ�
 
 $$\mu_i = \alpha_{\Tiny CID[i]} + \beta(r_i - \bar{i}) $$
 
-trong đó $CID$ là biến chỉ số, ID của lục địa. Nó nhận giá trị 0 cho quốc gia ở Châu Phi và 1 cho quốc gia khác. Điều này có nghĩa có 2 tham số, $\apha_1$ à $\alpha_2$, mỗi một cho từng giá trị chỉ số độc nhất. Ký hiệu $CID[i]$ nghĩa là giá trị $CID$ ở hàng $i$. Tôi dùng ký hiệu ngoặc vuông cho biến chỉ số, bởi vì nó dễ hơn để đọc hơn thêm một dòng nằm dưới, $\alpha_{CID_i}$. Chúng ta có thể xây dựng biến chỉ số này như sau:
+Trong đó $CID$ là biến chỉ số, ID của lục địa. Nó nhận giá trị 0 cho quốc gia ở Châu Phi và 1 cho quốc gia khác. Điều này có nghĩa có 2 tham số, $\alpha_1$ à $\alpha_2$, mỗi một cho từng giá trị chỉ số độc nhất. Ký hiệu $CID[i]$ nghĩa là giá trị $CID$ ở hàng $i$. Tôi dùng ký hiệu ngoặc vuông cho biến chỉ số, bởi vì nó dễ hơn để đọc hơn thêm một dòng nằm dưới, $\alpha_{CID_i}$. Chúng ta có thể xây dựng biến chỉ số này như sau:
 
 <b>code 8.7</b>
 ```python
@@ -295,9 +295,351 @@ trong đó $CID$ là biến chỉ số, ID của lục địa. Nó nhận giá t
 dd["cid"] = jnp.where(dd.cont_africa.values == 1, 0, 1)
 ```
 
+Qua tiếp cận này, thay vì dùng tiếp cận cũ bằng cách thêm một số hạng với biến chỉ điểm 0/1, không ràng buộc chúng ta nói rằng trung bình cho Châu Phi là ít tính bất định hơn trung bình của những lục địa khác. Chúng ta chỉ cần tái sử dụng prior như trước. Sau cùng, cho dù log GDP trung bình của Châu Phi là gì, nó chắc chắn nằm trong khoảng cộng-hoặc-trừ 0.2 của 1. Những hãy nhớ rằng nó là cùng một cấu trúc mô hình mà bạn có từ tiếp cận cũ. Theo cách này nó dễ dàng hơn trong việc gán prior hợp lý. Bạn có thể dễ dàng gán những prior khác cho lục địa khác, nếu bạn nghĩ rằng đó là điều nên làm.
 
+Để định nghĩa mô hình bằng `SVI`, chúng ta thêm ngoặc vuông vào mô hình tuyến tính và prior:
+
+<b>code 8.8</b>
+```python
+def model(cid, rugged_std, log_gdp_std=None):
+    a = numpyro.sample("a", dist.Normal(1, 0.1).expand([2]))
+    b = numpyro.sample("b", dist.Normal(0, 0.3))
+    sigma = numpyro.sample("sigma", dist.Exponential(1))
+    mu = numpyro.deterministic("mu", a[cid] + b * (rugged_std - 0.215))
+    numpyro.sample("log_gdp_std", dist.Normal(mu, sigma), obs=log_gdp_std)
+m8_2 = AutoLaplaceApproximation(model)
+svi = SVI(
+    model,
+    m8_2,
+    optim.Adam(0.1),
+    Trace_ELBO(),
+    cid=dd.cid.values,
+    rugged_std=dd.rugged_std.values,
+    log_gdp_std=dd.log_gdp_std.values,
+)
+p8_2, losses = svi.run(random.PRNGKey(0), 1000)
+```
+
+Bây giờ hãy so sánh những mô hình này, sử dụng WAIC:
+
+<b>code 8.9</b>
+```python
+post = m8_1.sample_posterior(random.PRNGKey(2), p8_1, (1000,))
+logprob = log_likelihood(
+    m8_1.model, post, rugged_std=dd.rugged_std.values, log_gdp_std=dd.log_gdp_std.values
+)
+az8_1 = az.from_dict({}, log_likelihood={k: v[None] for k, v in logprob.items()})
+post = m8_2.sample_posterior(random.PRNGKey(2), p8_2, (1000,))
+logprob = log_likelihood(
+    m8_2.model,
+    post,
+    rugged_std=dd.rugged_std.values,
+    cid=dd.cid.values,
+    log_gdp_std=dd.log_gdp_std.values,
+)
+az8_2 = az.from_dict({}, log_likelihood={k: v[None] for k, v in logprob.items()})
+az.compare({"m8_1": az8_1, "m8_2": az8_2}, ic="waic", scale="deviance")
+```
+<p><samp><table border="1">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>waic</th>
+      <th>p_waic</th>
+      <th>d_waic</th>
+      <th>weight</th>
+      <th>se</th>
+      <th>dse</th>
+      <th>warning</th>
+      <th>waic_scale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>m8_2</th>
+      <td>0</td>
+      <td>-252.359592</td>
+      <td>4.153888</td>
+      <td>0.000000</td>
+      <td>0.963947</td>
+      <td>15.091342</td>
+      <td>0.000000</td>
+      <td>True</td>
+      <td>deviance</td>
+    </tr>
+    <tr>
+      <th>m8_1</th>
+      <td>1</td>
+      <td>-188.726754</td>
+      <td>2.700302</td>
+      <td>63.632839</td>
+      <td>0.036053</td>
+      <td>13.249023</td>
+      <td>14.956883</td>
+      <td>False</td>
+      <td>deviance</td>
+    </tr>
+  </tbody>
+</table></samp></p>
+
+`m8_2` có tất cả những trọng số của mô hình. Và trong khi sai số chuẩn của hiệu số trong WAIC là 15, hiệu của chúng là 64. Cho nên biến lục địa có vẻ nhận được vài quan hệ quan trọng trong mẫu. Kết quả `print_summary` cho một gợi ý tốt. Chú ý `alpha` có hai giá trị. Thông thường một vector như vậy có vài trăm giá trị.
+
+<b>code 8.10</b>
+```python
+post = m8_2.sample_posterior(random.PRNGKey(1), p8_2, (1000,))
+print_summary({k: v for k, v in post.items() if k != "mu"}, 0.89, False)
+```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+ a[0]   0.88  0.02    0.88   0.86   0.90  1049.96   1.00
+ a[1]   1.05  0.01    1.05   1.03   1.07   824.00   1.00
+    b  -0.05  0.05   -0.05  -0.13   0.02   999.08   1.00
+sigma   0.11  0.01    0.11   0.10   0.12   961.35   1.00</samp>
+
+Tham số `a[0]` là intercept cho quốc gia ở Châu Phi. Nó nhỏ hơn `a[1]` một cách đáng tin cậy. Tương phản posterior giữa hai intercept này là:
+
+<b>code 8.11</b>
+```python
+post = m8_2.sample_posterior(random.PRNGKey(1), p8_2, (1000,))
+diff_a1_a2 = post["a"][:, 0] - post["a"][:, 1]
+jnp.percentile(diff_a1_a2, q=(5.5, 94.5))
+```
+<samp>[-0.19981882, -0.13967244]</samp>
+
+Hiệu số này nhỏ hơn zero đáng tin cậy. Hãy minh hoạ dự đoán posterior cho `m8_2`, để bạn thấy rằng, mặc dù khả năng dự đoán mạnh hơn so với `m8_1`, nó vẫn chưa nhận ra những slope khác nhau trong và ngoài Châu Phi. Để lấy mẫu từ posterior và tính trung bình và khoảng tin cậy của dự đoán cho quốc gia ở Châu Phi và không Châu Phi:
+
+<b>code 8.12</b>
+```python
+rugged_seq = jnp.linspace(start=-0.1, stop=1.1, num=30)
+# compute mu over samples, fixing cid=1
+predictive = Predictive(m8_2.model, post, return_sites=["mu"])
+mu_NotAfrica = predictive(random.PRNGKey(2), cid=1, rugged_std=rugged_seq)["mu"]
+# compute mu over samples, fixing cid=0
+mu_Africa = predictive(random.PRNGKey(2), cid=0, rugged_std=rugged_seq)["mu"]
+# summarize to means and intervals
+mu_NotAfrica_mu = jnp.mean(mu_NotAfrica, 0)
+mu_NotAfrica_ci = jnp.percentile(mu_NotAfrica, q=(1.5, 98.5), axis=0)
+mu_Africa_mu = jnp.mean(mu_Africa, 0)
+mu_Africa_ci = jnp.percentile(mu_Africa, q=(1.5, 98.5), axis=0)
+```
+
+<a name="f4"></a>![](/assets/images/fig 8-4.svg)
+<details class="fig"><summary>Hình 8.4: Thêm một biến chỉ điểm cho quốc gia ở Châu Phi không có ảnh hưởng lên slope. Quốc gia ở Châu Phi màu xanh, quốc gia không Châu Phi màu đỏ. Trung bình hồi quy cho mỗi nhóm quốc gia được hiện theo màu tương ứng, với khoảng tin cậy 97%.</summary>
+{% highlight python %}cond = dd['cont_africa']==0
+plt.scatter(dd['rugged_std'][~cond], dd['log_gdp_std'][~cond], color="C0")
+plt.scatter(dd['rugged_std'][cond], dd['log_gdp_std'][cond], color="C1")
+plt.plot(rugged_seq,mu_Africa_mu,'C0')
+plt.plot(rugged_seq,mu_NotAfrica_mu,'C1')
+plt.fill_between(rugged_seq, *mu_Africa_ci, color="C0", alpha=0.3)
+plt.fill_between(rugged_seq, *mu_NotAfrica_ci, color="C1", alpha=0.3)
+plt.gca().set(title='m8_4',xlabel="độ gồ ghề (chuẩn hoá)",
+              ylabel="log GDP (tỉ lệ với trung bình)")
+plt.annotate("Châu Phi", (0.8, 0.8))
+plt.annotate("không Châu Phi", (0.8, 0.98)){% endhighlight %}</details>
+
+Tôi thể hiện những dự đoán posterior (dự đoán ngược) ở [**HÌNH 8.4**](#f4). Quốc gia ở Châu Phi là màu xanh, quốc gia ngoài Châu Phi là màu đỏ. Bạn có được ở đây là một quan hệ yếu giữa kinh tế và độ gồ ghề. Quốc gia ở Châu Phi nhìn chung có phát triển kinh tế thấp hơn, và nên đường hồi quy màu xanh là nằm dưới, nhưng song song với, đường màu đỏ. Tất cả bao gồm biến giả cho quốc gia ở Châu Phi đã làm là cho phép mô hình dự đoán trung bình thấp hơn cho quốc gia ở Châu Phi. Nó không thể làm gì cho slope của đường thẳng. Sự thật WAIC nói chúng ta biết rằng mô hình với biến giả là tốt hơn rất nhiều với mô hình chỉ nói lên rằng quốc gia ở Châu Phi có trung bình GDP thấp hơn.
+
+<div class="alert alert-info">
+<p><strong>Tại sao 97%?</strong> Trong code trên cũng như trong <a href="#f4"><strong>HÌNH 8.4</strong></a>, tôi sử dụng khoảng 97% của trung bình mong đợi. Đây là một khoảng bách phân không tiêu chuẩn. Tại sao lại dùng 97%? Trong sách này, tôi dùng phần trăm không tiêu chuẩn để luôn luôn nhắc nhở người đọc rằng khoảng tiện lợi như 95% và 5% là ngẫu nhiên. Hơn nữa, biên giới này là vô nghĩa. Có một sự thay đổi liên tục trong xác suất khi chúng ta rời xa giá trị mong đợi. Cho nên một mặt của biên giới là gần bằng xác suất của bên còn lại. Và, 97 là số nguyên tố. Nó không có nghĩa là lựa chọn tốt hơn những con số khác ở đây, nhưng nó không ngu ngốc hơn khi sử dụng bội số của 5, chỉ bởi vì chúng ta có 5 ngón ở mỗi bàn tay. Hãy chống lại sự cai trị của Tetrapoda.</p></div>
+
+### 8.1.3 Việc thêm sự tương tác là đúng
+
+Làm sao để phục hồi sự thay đổi slope bạn đã nhìn thấy ở đầu phần này? Bạn cần hiệu ứng tương tác rõ ràng. Điều này nghĩa là chúng ta phải làm cho slope được đặt điều kiện trên lục địa. Định nghĩa của $\mu_i$ trong mô hình bạn đã minh hoạ, dưới dạng toán học là:
+
+$$ \mu_i = \alpha_{CID[i]} + \beta(r_i - \bar{r})$$
+
+Và bây giờ chúng ta sẽ nhân đôi chỉ số của chúng ta để làm cho slope cũng được đặt điều kiện:
+
+$$ \mu_i = \alpha_{CID[i]} + \beta_{CID[i]}(r_i - \bar{r})$$
+
+Và lần nữa, đây là một tiếp cận thuận tiện để xác định tương tác có sử dụng biến chỉ điểm và một biến tương tác mới. Nó trông giống như vậy:
+
+$$ \mu_i = \alpha_{CID[i]} + (\beta+\gamma A_i)(r_i - \bar{r})$$
+
+Trong khi $A_i$ là biến chỉ điểm 0/1 cho quốc gia ở Châu Phi. Nó là tương đương với cách tiếp cận chỉ số, nhưng khó hơn để đưa ra prior hợp lý. Bất kỳ prior chúng ta đặt lên $\gamma$ sẽ làm slope trong Châu Phi có tính bất định cao hơn slope ngoài Châi Phi. Và lần nữa nó vô lý. Nhưng trong cách tiếp cận chỉ số, chúng ta có thể dễ dàng gán cùng một prior cho slope, cho dù lục địa nào.
+
+Để ước lượng posterior cho mô hình mới, chúng ta vẫn sử dụng `SVI` như trước. Đây là code bao gồm tương giữa độ gồ ghề và ở Châu Phi:
+
+<b>code 8.13</b>
+```python
+def model(cid, rugged_std, log_gdp_std=None):
+    a = numpyro.sample("a", dist.Normal(1, 0.1).expand([2]))
+    b = numpyro.sample("b", dist.Normal(0, 0.3).expand([2]))
+    sigma = numpyro.sample("sigma", dist.Exponential(1))
+    mu = numpyro.deterministic("mu", a[cid] + b[cid] * (rugged_std - 0.215))
+    numpyro.sample("log_gdp_std", dist.Normal(mu, sigma), obs=log_gdp_std)
+m8_3 = AutoLaplaceApproximation(model)
+svi = SVI(
+    model,
+    m8_3,
+    optim.Adam(0.1),
+    Trace_ELBO(),
+    cid=dd.cid.values,
+    rugged_std=dd.rugged_std.values,
+    log_gdp_std=dd.log_gdp_std.values,
+)
+p8_3, losses = svi.run(random.PRNGKey(0), 1000)
+```
+
+Hãy kiểm tra phân phối posterior biên:
+
+<b>code 8.14</b>
+```python
+post = m8_3.sample_posterior(random.PRNGKey(1), p8_3, (1000,))
+print_summary({k: v for k, v in post.items() if k != "mu"}, 0.89, False)
+```
+<samp>        mean   std  median   5.5%  94.5%    n_eff  r_hat
+ a[0]   0.89  0.02    0.89   0.86   0.91  1009.20   1.00
+ a[1]   1.05  0.01    1.05   1.04   1.07   755.33   1.00
+ b[0]   0.13  0.07    0.13   0.01   0.24  1045.06   1.00
+ b[1]  -0.15  0.06   -0.14  -0.23  -0.05  1003.36   1.00
+sigma   0.11  0.01    0.11   0.10   0.12   810.01   1.00</samp>
+
+Slope đã quay ngược đúng trong Châu Phi, 0.13 thay vì -0.14.
+
+Việc cho phép slope thay đổi đã cải thiện dự đoán mong đợi như thế nào? Hãy dùng PSIS để so sánh mô hình mới này với hai mô hình trước. Bạn cũng có thể dùng WAIC. Nó sẽ cho kết quả giống nhau. Nhưng nó không cho cảnh báo Pareto k ngọt ngào.
+
+<b>code 8.15</b>
+```python
+post = m8_1.sample_posterior(random.PRNGKey(2), p8_1, (1000,))
+logprob = log_likelihood(
+    m8_1.model, post, rugged_std=dd.rugged_std.values, log_gdp_std=dd.log_gdp_std.values
+)
+az8_1 = az.from_dict({}, log_likelihood={k: v[None] for k, v in logprob.items()})
+post = m8_2.sample_posterior(random.PRNGKey(2), p8_2, (1000,))
+logprob = log_likelihood(
+    m8_2.model,
+    post,
+    rugged_std=dd.rugged_std.values,
+    cid=dd.cid.values,
+    log_gdp_std=dd.log_gdp_std.values,
+)
+az8_3 = az.from_dict({}, log_likelihood={k: v[None] for k, v in logprob.items()})
+post = m8_3.sample_posterior(random.PRNGKey(2), p8_3, (1000,))
+logprob = log_likelihood(
+    m8_3.model,
+    post,
+    rugged_std=dd.rugged_std.values,
+    cid=dd.cid.values,
+    log_gdp_std=dd.log_gdp_std.values,
+)
+az8_3 = az.from_dict({}, log_likelihood={k: v[None] for k, v in logprob.items()})
+az.compare({"m8_1": az8_1, "m8_2": az8_2, "m8_3": az8_3}, ic="waic", scale="deviance")
+```
+<p><samp><table border="1" class="dataframe">
+<thead><tr style="text-align: right;">
+<th></th>
+      <th>rank</th>
+      <th>waic</th>
+      <th>p_waic</th>
+      <th>d_waic</th>
+      <th>weight</th>
+      <th>se</th>
+      <th>dse</th>
+      <th>warning</th>
+      <th>waic_scale</th>
+    </tr></thead>
+<tbody>
+<tr>
+<th>m8_3</th>
+      <td>0</td>
+      <td>-259.176</td>
+      <td>5.10348</td>
+      <td>0</td>
+      <td>0.824888</td>
+      <td>13.4328</td>
+      <td>0</td>
+      <td>True</td>
+      <td>deviance</td>
+    </tr>
+<tr>
+<th>m8_2</th>
+      <td>1</td>
+      <td>-252.36</td>
+      <td>4.15389</td>
+      <td>6.81647</td>
+      <td>0.175111</td>
+      <td>14.6901</td>
+      <td>6.67691</td>
+      <td>True</td>
+      <td>deviance</td>
+    </tr>
+<tr>
+<th>m8_1</th>
+      <td>2</td>
+      <td>-188.818</td>
+      <td>2.65329</td>
+      <td>70.3582</td>
+      <td>4.90447e-08</td>
+      <td>14.6588</td>
+      <td>15.3423</td>
+      <td>False</td>
+      <td>deviance</td>
+    </tr>
+</tbody>
+</table></samp></p>
+
+Gia đình mô hình `m8_3` có hơn 95% trọng số. Đó là một ủng hộ mạnh cho việc bao gồm hiệu ứng tương tác, nếu dự đoán là mục đích của chúng ta. Nhưng giá trị trọng số cho `m8_2` đề nghị rằng trung bình posterior cho slope ở `m8_3` có một ít overfit. Và sai số chuẩn của hiệu số trong PSIS giữa hai mô hình trên là hầu như bằng nhau với bản thân hiệu số. Nếu bạn vẽ PSIS Pareto k cho `m8_3`, bạn sẽ thấy những quốc gia có ảnh hưởng.
+
+<b>code 8.16</b>
+```python
+plt.plot(az.loo(az8_3, pointwise=True).pareto_k.data)
+```
+
+Bạn sẽ khám phá vấn đề này trong phần thực hành cuối chương. Nó là một tình huống tốt cho hồi quy robust, như hồi quy Student_t chúng ta đã làm ở Chương 7.
+
+Nên nhớ rằng việc so sánh là không phải chỉ dẫn tin cậy cho suy luận nhân quả. Chúng chỉ gợi ý những đặc trưng quan trọng cho dự đoán. Hiệu ứng nhân quả thực sự có thể không quan trọng cho dự đoán chung với bất kỳ mẫu nào. Dự đoán và suy luận là hai câu hỏi khác nhau. Cho dù thế nào, overfitting luôn luôn xảy ra. Cho nên lường trước và đo lường nó cũng quan trọng cho suy luận.
+
+### 8.1.4 Biểu đồ của sự tương tác
+
+Minh hoạ cho mô hình này không cần mánh gì mới. Mục tiêu là làm hai biểu đồ. Trong biểu đồ đầu tiên, chúng ta sẽ thể hiện quốc gia Châu Phi và thêm một lớp đường trung bình và khoảng tin cậy 97% của hồi quy. Trong biểu đồ thứ hai, chúng ta sẽ thể hiện quốc gia ngoài Châu Phi với cách làm tương tự.
+
+<b>code 8.17</b>
+```python
+post = m8_3.sample_posterior(random.PRNGKey(1), p8_3, (1000,))
+rugged_seq = jnp.linspace(start=-0.1, stop=1.1, num=30)
+predictive = Predictive(m8_3.model, post, return_sites=["mu"])
+fig, axs= plt.subplots(1,2,figsize=(10,5))
+for i,ax in enumerate(axs):
+    mu = predictive(random.PRNGKey(2), cid=i, rugged_std=rugged_seq)["mu"]
+    mu_mean = jnp.mean(mu, axis=0)
+    mu_ci = jnp.percentile(mu, jnp.array([1.5, 98.5]), axis=0)
+    cond =dd['cid']==i
+    ax.scatter(dd[cond]['rugged_std'], dd[cond]['log_gdp_std'], color=f"C{i}")
+    ax.plot(rugged_seq, mu_mean, color=f'C{i}')
+    ax.fill_between(rugged_seq, *mu_ci, color=f'C{i}', alpha=0.3)
+    ax.set(xlabel="độ gồ ghề (chuẩn hoá)", ylabel="log GDP (tỉ lệ với trung bình)")
+    for j in range(0,50,10):
+        n = dd[cond].iloc[j]
+```
+
+<a name="f5"></a>![](/assets/images/fig 8-5.svg)
+<details class="fig"><summary>Hình 8.5: Dự đoán posterior cho mô hình gồ ghề địa hình, bao gồm tương tác giữa Châu Phi và độ gồ ghề. Vùng tô màu là khoảng posterior 97% của trung bình.</summary>
+{% highlight python %}post = m8_3.sample_posterior(random.PRNGKey(1), p8_3, (1000,))
+rugged_seq = jnp.linspace(start=-0.1, stop=1.1, num=30)
+predictive = Predictive(m8_3.model, post, return_sites=["mu"])
+fig, axs= plt.subplots(1,2,figsize=(10,5))
+for i,ax in enumerate(axs):
+    mu = predictive(random.PRNGKey(2), cid=i, rugged_std=rugged_seq)["mu"]
+    mu_mean = jnp.mean(mu, axis=0)
+    mu_ci = jnp.percentile(mu, jnp.array([1.5, 98.5]), axis=0)
+    cond =dd['cid']==i
+    ax.scatter(dd[cond]['rugged_std'], dd[cond]['log_gdp_std'], color=f"C{i}")
+    ax.plot(rugged_seq, mu_mean, color=f'C{i}')
+    ax.fill_between(rugged_seq, *mu_ci, color=f'C{i}', alpha=0.3)
+    ax.set(xlabel="độ gồ ghề (chuẩn hoá)", ylabel="log GDP (tỉ lệ với trung bình)")
+    for j in range(0,50,10):
+        n = dd[cond].iloc[j]
+        ax.annotate(n['country'],(n['rugged_std'], n['log_gdp_std']))
+axs[0].set(title="Quốc gia Châu Phi")
+axs[1].set(title="Quốc gia không Châu Phi"){% endhighlight %}</details>
+
+Và kết quả được thể hiện ở [**HÌNH 8.5**](#f5). Cuối cùng, sự đảo chiều slope dã xảy ra trong và ngoài Châu Phi. Và bởi vì chúng ta đạt được điều này chỉ trong một mô hình duy nhất, chúng ta có thể lượng giá ý nghĩa của sự đảo chiều này bằng thống kê.
 
 ## <center></center>8.2 Tính đối xứng của tương tác<a name="a2"></a>
+
+
+
 ## <center></center>8.3 Tương tác liên tục<a name="a3"></a>
 ## <center></center>8.4 Tổng kết<a name="a4"></a>
 
