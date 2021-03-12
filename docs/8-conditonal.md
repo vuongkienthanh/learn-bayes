@@ -23,7 +23,7 @@ from numpyro.infer import Predictive, SVI, Trace_ELBO, log_likelihood
 from numpyro.infer.autoguide import AutoLaplaceApproximation
 az.style.use("fivethirtyeight"){% endhighlight %}</details>
 
-Lợn biển (manatee - *Trichechus manatus*) là một động vật hữu nhũ chậm chạp, sống dưới vùng nước ấm và nông. Lợn biển không có thiên dịch tự nhiên, nhưng chúng có chia sẽ nước với những chiếc thuyền máy. Và thuyền máu có cánh quạt. Khi những con lợn biển liên quan với loài voi và có lớp da rất dày, cánh quạt có thể giết chúng. Phần lớn các con lợn biển trưởng thành đều có sẹo từ va chạm với thuyền ([**HÌNH 8.1, trên**](#f1))<sup><a name="r135" href="#135">135</a></sup>
+Lợn biển (manatee - *Trichechus manatus*) là một động vật hữu nhũ chậm chạp, sống dưới vùng nước ấm và nông. Lợn biển không có thiên dịch tự nhiên, nhưng chúng có chia sẻ vùng nước với những chiếc thuyền máy. Và thuyền máu có cánh quạt. Khi những con lợn biển liên quan với loài voi và có lớp da rất dày, cánh quạt có thể giết chúng. Phần lớn các con lợn biển trưởng thành đều có sẹo từ va chạm với thuyền ([**HÌNH 8.1, trên**](#f1))<sup><a name="r135" href="#135">135</a></sup>
 
 <a name="f1"></a>![](/assets/images/fig 8-1.png)
 <details class="fig"><summary>Hình 8.1: TRÊN: Các vết sẹo trên lưng của 5 con lợn biển Florida. Các dãy trầy xước, như trên các cá thể Africa và Flash, là dấu hiệu của vết thương do cánh quạt. DƯỚI: Ba ví dụ thiệt hại trên những chiếc máy bay thả bom A.W.38 sau nhiệm vụ.</summary></details>
@@ -49,9 +49,9 @@ Mô hình cho phép tương tác phức tạp thì dễ fit vào data. Nhưng ch
 Sự tương tác là bình thường, nhưng chúng không dễ. Hi vọng là chương này là tạo một nền tảng vững chắc cho việc diễn giải mô hình tuyến tính tổng quát và mô hình đa tầng trong các chương sau.
 
 <div class="alert alert-info">
-<p><strong>Minh tinh thống kê, Abraham Wald.</strong> Câu chuyện máy bay thả bom trong Thế Chiến II là tác phẩm của Abraham Wald (1902-1950). Wald sinh ra ở nơi mà bây giờ gọi là Romania, nhưng di cư sang Mỹ sau khi Nazi xâm chiếm nước Áo. Wald đã cống hiến rất nhiều trong cuộc đời ngắn ngủi của ông. Có lẽ công tình liên quan nhất đến tài liệu này, là Wald đã chứng mình rằng với nhiều loại quy luật để quyết định theo thống kê, luôn luôn tồn tại một quy luật Bayes chí ít tốt bằng nhiều quy luật non-Bayes. Wald đã chứng minh điều này, một cách xuất sắc, bắt đầu với các tiền đề non-Bayes, và nên phe anti-Bayes không thể mặc kệ nó nữa. Công trình này được tóm tắc trong sách 1950 của Wald, được phát hành chỉ trước khi ông mất.<sup><a name="r137" href="#137">137</a></sup> Wald chết khi quá trẻ, từ một vụ rơi máy bay khi tham quan Ấn Độ.</p></div>
+<p><strong>Minh tinh thống kê, Abraham Wald.</strong> Câu chuyện máy bay thả bom trong Thế Chiến II là tác phẩm của Abraham Wald (1902-1950). Wald sinh ra ở nơi mà bây giờ gọi là Romania, nhưng di cư sang Mỹ sau khi Nazi xâm chiếm nước Áo. Wald đã cống hiến rất nhiều trong cuộc đời ngắn ngủi của ông. Có lẽ công tình liên quan nhất đến tài liệu này, là Wald đã chứng mình rằng với nhiều loại quy luật để quyết định theo thống kê, luôn luôn tồn tại một quy luật Bayes chí ít tốt bằng nhiều quy luật non-Bayes. Wald đã chứng minh điều này, một cách xuất sắc, bắt đầu với các tiền đề non-Bayes, và nên phe anti-Bayes không thể mặc kệ nó nữa. Công trình này được tóm tắt trong sách 1950 của Wald, được phát hành chỉ trước khi ông mất.<sup><a name="r137" href="#137">137</a></sup> Wald chết khi quá trẻ, từ một vụ rơi máy bay khi tham quan Ấn Độ.</p></div>
 
-## <center>.1 Xây dựng sự tương tác</center><a name="a1"></a>
+## <center>8.1 Xây dựng sự tương tác</center><a name="a1"></a>
 
 Châu Phi rất đặc biệt. Lục địa lớn thứ hai, đa dạng về văn hoá và di truyền. Châu Phi có 3 tỉ người ít hơn so với Châu Á, nhưng nó lại có nhiều ngôn ngữ giao tiếp. Châu Phi đa dạng di truyền và đa số các biến thể di truyền ngoài Châu Phi là một phần nhỏ của biến thể trong Châu Phi. Châu Phi cũng đặc biệt về địa hình, theo một cách kỳ lạ: Địa hình xấu thường liên quan quan đến kinh tế xấu ngoài Châu Phi, nhưng kinh tế ở Châu Phi lại thực ra hưởng lợi từ địa hình xấu.
 
@@ -99,7 +99,7 @@ Thứ hai, để đạt được mệnh đề xác suất của biến số mà 
 
 Thứ ba, chúng ta muốn sử dụng tiêu chuẩn thông tin hoặc một phương thức khác để so sánh mô hình. Để so sánh một mô hình mà xem tất cả các lục địa theo cùng một cách với một mô hình cho phép slope khác nhau trong lục địa khác nhau, chúng ta cần mô hình sử dụng tất cả cùng một data (như đã giải thích trong Chương 7). Điều này có nghĩa chúng ta không thể tách data thành hai mô hình riêng biệt. Chúng ta cần phải để cho một mô hình duy nhất tách data nội tại.
 
-Thứ tư, khi bạn bắt đầu sử dụng mô hình đa tầng (Chương 13), bạn sẽ thấy rằng có nhiều lợi ích thì mượn thông tin xuyên suốt phân nhóm như "Châu Phi" và "không Châu Phi". Điều này đúng đặc biệt khi cỡ mẫu thay đổi giữa các phân nhóm, và nguy cơ overfitting là cao hơn trong một vài nhóm. Nói cách khác, những gì chúng ta học về mức độ gồ ghề ngoài Châu Phi nên có vài hiệu ứng lên ước lượng trong Châu Phi, và ngược lại. Mô hình đa tầng (Chuonge 13) mượn thông tin bằng cách này, để cải thiện ước lượng cho mọi phân nhóm. Khi chúng ta tách data, việc mượn này là không khả thi.
+Thứ tư, khi bạn bắt đầu sử dụng mô hình đa tầng (Chương 13), bạn sẽ thấy rằng có nhiều lợi ích thì mượn thông tin xuyên suốt phân nhóm như "Châu Phi" và "không Châu Phi". Điều này đúng đặc biệt khi cỡ mẫu thay đổi giữa các phân nhóm, và nguy cơ overfitting là cao hơn trong một vài nhóm. Nói cách khác, những gì chúng ta học về mức độ gồ ghề ngoài Châu Phi nên có vài hiệu ứng lên ước lượng trong Châu Phi, và ngược lại. Mô hình đa tầng (Chương 13) mượn thông tin bằng cách này, để cải thiện ước lượng cho mọi phân nhóm. Khi chúng ta tách data, việc mượn này là không khả thi.
 
 <div class="alert alert-dark">
 <p><strong>Nhân quả không dễ dàng.</strong> DAG mức đồ gồ ghề địa hình trong phần trước là dễ. Nhưng sự thật không đơn giản như vậy. Lục địa không phải nguồn quan tâm chính. Có thể có sự phơi nhiễm trong lịch sử theo lý thuyết của chủ nghĩa thực dân và mua bán nô lệ đã ảnh hưởng dai dẳng đến hiệu suất kinh tế. Những đặc tính của địa hình, như độ gồ ghề, theo nhân quả giảm những yếu tố lịch sử đó có thể ảnh hưởng gián tiếp vào kinh tế. Như vậy:</p>
@@ -497,7 +497,7 @@ sigma   0.11  0.01    0.11   0.10   0.12   810.01   1.00</samp>
 
 Slope đã quay ngược đúng trong Châu Phi, 0.13 thay vì -0.14.
 
-Việc cho phép slope thay đổi đã cải thiện dự đoán mong đợi như thế nào? Hãy dùng PSIS để so sánh mô hình mới này với hai mô hình trước. Bạn cũng có thể dùng WAIC. Nó sẽ cho kết quả giống nhau. Nhưng nó không cho cảnh báo Pareto k ngọt ngào.
+Việc cho phép slope thay đổi đã cải thiện dự đoán mong đợi như thế nào? Hãy dùng PSIS để so sánh mô hình mới này với hai mô hình trước. Bạn cũng có thể dùng WAIC. Nó sẽ cho kết quả giống nhau. Nhưng nó không cho cảnh báo Pareto $k$ ngọt ngào.
 
 <b>code 8.15</b>
 ```python
@@ -579,7 +579,7 @@ az.compare({"m8_1": az8_1, "m8_2": az8_2, "m8_3": az8_3}, ic="waic", scale="devi
 </tbody>
 </table></samp></p>
 
-Gia đình mô hình `m8_3` có hơn 95% trọng số. Đó là một ủng hộ mạnh cho việc bao gồm hiệu ứng tương tác, nếu dự đoán là mục đích của chúng ta. Nhưng giá trị trọng số cho `m8_2` đề nghị rằng trung bình posterior cho slope ở `m8_3` có một ít overfit. Và sai số chuẩn của hiệu số trong PSIS giữa hai mô hình trên là hầu như bằng nhau với bản thân hiệu số. Nếu bạn vẽ PSIS Pareto k cho `m8_3`, bạn sẽ thấy những quốc gia có ảnh hưởng.
+Gia đình mô hình `m8_3` có hơn 95% trọng số. Đó là một ủng hộ mạnh cho việc bao gồm hiệu ứng tương tác, nếu dự đoán là mục đích của chúng ta. Nhưng giá trị trọng số cho `m8_2` đề nghị rằng trung bình posterior cho slope ở `m8_3` có một ít overfit. Và sai số chuẩn của hiệu số trong PSIS giữa hai mô hình trên là hầu như bằng nhau với bản thân hiệu số. Nếu bạn vẽ PSIS Pareto $k$ cho `m8_3`, bạn sẽ thấy những quốc gia có ảnh hưởng.
 
 <b>code 8.16</b>
 ```python
@@ -777,7 +777,7 @@ Tình huống nhân quả đơn giản là nước ($W$) và bóng ($S$) đều 
 Mô hình đầu tiên, không chứa sự tương tác nào cả (chỉ có "hiệu ứng chính"), bắt đầu bằng cách này:
 
 $$\begin{aligned}
-\beta_i $\sim \text{Normal}(\mu_i, \sigma)\\
+\beta_i &\sim \text{Normal}(\mu_i, \sigma)\\
 \mu_i &\sim \alpha + \beta_W (W_i -\bar{W}) + \beta_S (S_i - \bar{S})\\
 \end{aligned}$$
 
@@ -861,8 +861,8 @@ Một đáp án theo quy ước là tái áp dụng thuyết địa tâm gốc �
 Để đơn giản, đặt $W_i$ và $S_i$ là các biến được canh giữa. Sau đó nếu chúng ta định nghĩa slope $B_W$ với mô hình tuyến tính $\gamma_W$ của riêng nó:
 
 $$\begin{aligned}
-\mu_i = \alpha +\gamma_{W,i} W_i + \beta_S S_i\\
-\gamma_{W,i} = \beta_W + \beta_{WS} S_i\\
+\mu_i &= \alpha +\gamma_{W,i} W_i + \beta_S S_i\\
+\gamma_{W,i} &= \beta_W + \beta_{WS} S_i\\
 \end{aligned}$$
 
 Bây giờ $\gamma_{W,i}$ là slope định nghĩa hoa thay đổi nhanh như thế nào với các mức độ nước. Tham số $\beta_W$ là tốc độ thay đổi, khi bóng ở giá trị trung bình của nó. Và $\beta_{WS}$ là tốc độ thay đổi trong $\gamma_{W,i}$ khi bóng thay đổi - slope của bóng trên slope của nước. Nhớ rằng, nó toàn là rùa ở phía dưới. Chú ý rằng $i$ trong $\gamma_{W,i}$ - nó phụ thuộc vào hàng $i$, bởi vì nó có $S_i$ trong nó.
@@ -877,7 +877,7 @@ Hãy đặt nó vào tulips. Mô hình tương tác là:
 
 $$\begin{aligned}
 \beta_i &\sim \text{Normal}(\mu_i, \sigma)\\
-\mu_i = \alpha + \beta_W W_i + B_SS_i + \beta_{WS}W_iS_i\\
+\mu_i &= \alpha + \beta_W W_i + B_SS_i + \beta_{WS}W_iS_i\\
 \end{aligned}$$
 
 Việc cuối cùng là chúng ta cần prior cho tham số tương tác mới, $\beta_{WS}$. Điều này khó, bởi vì tham số epicycle không có ý nghĩa tự nhiên rõ ràng. Nhưng, dự đoán được suy ra có thể giúp đỡ. Giả sử tương tác phù hợp mạnh nhất là đủ lớn để bóng làm cho nước không có hiệu ứng. Tức là:
@@ -1017,7 +1017,7 @@ Chúng ta có thể nói gì với prior này, sau tất cả? Chúng là vô h�
 
 ## <center>8.4 Tổng kết</center><a name="a4"></a>
 
-Chương này giới thiệu *sự tương tác*, cho phép quan hệ giữa biến dự đoán và biến kết cục phụ thuộc vào giá trị của biến dự đoán khác. Trong khi bạn không thể nhìn thấy chúng trong DAG, sự tương tác có thể là quan trọng để thực hiện suy luận chính xác. Sự tương tác có thể khó diễn giải, và cho nên chương này cũng giới thiệu biểu đồ *triptych* để giúp minh minh hoạ hiệu ứng của sự tương tác. Không có kỹ năng code mới nào được giới thiệu, nhưng mô hình thống kê được nói đến là một trong những mô hình phức tập nhất đến giờ trong sách này. Để đi xa hơn, bạn cần phải có một cỗ máy đặt điều kiện mạnh mẽ hơn để fit mô hình vào data. Nó là chủ đề trong chương tiếp theo.
+Chương này giới thiệu *sự tương tác*, cho phép quan hệ giữa biến dự đoán và biến kết cục phụ thuộc vào giá trị của biến dự đoán khác. Trong khi bạn không thể nhìn thấy chúng trong DAG, sự tương tác có thể là quan trọng để thực hiện suy luận chính xác. Sự tương tác có thể khó diễn giải, và cho nên chương này cũng giới thiệu biểu đồ *triptych* để giúp minh minh hoạ hiệu ứng của sự tương tác. Không có kỹ năng code mới nào được giới thiệu, nhưng mô hình thống kê được nói đến là một trong những mô hình phức tạp nhất đến giờ trong sách này. Để đi xa hơn, bạn cần phải có một cỗ máy đặt điều kiện mạnh mẽ hơn để fit mô hình vào data. Nó là chủ đề trong chương tiếp theo.
 
 ---
 
