@@ -28,7 +28,7 @@ description: "vn"
 ---
 
 <details><summary>Endnotes</summary>
-<ol start="" class='endnotes'>
+<ol class='endnotes'>
     <li></li>
 </ol>
 </details>

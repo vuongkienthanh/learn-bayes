@@ -3,7 +3,6 @@ title: "Chapter 8: Conditional Manatees"
 description: "Chương 8: Những con lợn biển có điều kiện"
 ---
 
-
 - [8.1 Xây dựng sự tương tác](#a1)
 - [8.2 Tính đối xứng của sự tương tác](#a2)
 - [8.3 Sự tương tác liên tục](#a3)
