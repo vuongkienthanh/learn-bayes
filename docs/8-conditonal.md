@@ -649,13 +649,13 @@ Trong khi hai khả năng này nghe có vẻ khác nhau với nhiều người, 
 
 Xem xét mô hình cho $\mu_i$ lần nữa:
 
-$$\mu_i = \alpha_{CID[i]} + \beta_{CID[i]}(r_i \bar{r})$$
+$$\mu_i = \alpha_{CID[i]} + \beta_{CID[i]}(r_i - \bar{r})$$
 
 Diễn này trước nói rằng slope được đặt điều kiện trên lục địa. Nhưng cũng có thể nói rằng intercept được đặt điều kiện trên đồ gồ ghề. Sẽ dễ nhìn ra hơn nếu chúng ta viết lại biểu thức trên theo cách khác:
 
-$$\mu_i = \underbrace{(2-CID_i)(\alpha_1 + \beta_1(r_i -\bar{r}))}_{CID[i]=1} + \underbrace{(CID_i -1)(\alpha_2 +\beta2(r_i -\bar{r}))}_{CID[i]=1}$$
+$$\mu_i = \underbrace{(2-CID_i)(\alpha_1 + \beta_1(r_i -\bar{r}))}_{CID[i]=0} + \underbrace{(CID_i -1)(\alpha_2 +\beta2(r_i -\bar{r}))}_{CID[i]=1}$$
 
-Nó có vẻ lạ, nhưng là cùng một mô hình. Khi $CID_i=1$, chỉ có số hạng đầu tiên, tham số Châu Phi, là ở lại. Số hạng thứ hai biến mất thành zero. Khi $CID_i=2$, số hạng đầu tiên biến mất thành zero, chỉ còn lại số hạng thứ hai. Bây giờ nếu chúng ta tưởng tượng thau đổi một quốc gia thành ở Châu Phi, để biết được nó ảnh hưởng gì đến dự đoán, chúng ta phải biết độ gồ ghề (trừ phi chúng ta đang ở ngay độ gồ ghề trung bình, $\bar{r}$).
+Nó có vẻ lạ, nhưng là cùng một mô hình. Khi $CID_i=0$, chỉ có số hạng đầu tiên, tham số Châu Phi, là ở lại. Số hạng thứ hai biến mất thành zero. Khi $CID_i=1$, số hạng đầu tiên biến mất thành zero, chỉ còn lại số hạng thứ hai. Bây giờ nếu chúng ta tưởng tượng thau đổi một quốc gia thành ở Châu Phi, để biết được nó ảnh hưởng gì đến dự đoán, chúng ta phải biết độ gồ ghề (trừ phi chúng ta đang ở ngay độ gồ ghề trung bình, $\bar{r}$).
 
 Sẽ có ích nếu minh hoạ ra cách diễn đạt ngược này: *Quan hệ giữa ở Châu Phi và log GDP phụ thuộc vào độ gồ ghề địa hình*. Chúng ta sẽ tính sự khác nhau giữa quốc gia ở Châu Phi và ngoài Châu Phi, với độ gồ ghề hằng định. Để làm việc này, bạn có thể hạy `Predictive` hai lần và lấy kết quả đầu tiên trừ đi kết quả thứ hai:
 
@@ -778,7 +778,7 @@ Mô hình đầu tiên, không chứa sự tương tác nào cả (chỉ có "hi
 
 $$\begin{aligned}
 \beta_i &\sim \text{Normal}(\mu_i, \sigma)\\
-\mu_i &\sim \alpha + \beta_W (W_i -\bar{W}) + \beta_S (S_i - \bar{S})\\
+\mu_i &= \alpha + \beta_W (W_i -\bar{W}) + \beta_S (S_i - \bar{S})\\
 \end{aligned}$$
 
 Trong đó \beta_i là giá trị của `blooms` ở hàng $i$, W_i là giá trị của `water`, và $S_i$ là giá trị của `shade`. Ký hiệu $\bar{W}$ và $\bar{S}$ lần lượt là trung bình của nước và bóng. Tất cả những thứ này, là hồi quy tuyến tính với hai biến đự đoán, mỗi một được canh giữa bằng cách trừ đi trung bình của chúng.
